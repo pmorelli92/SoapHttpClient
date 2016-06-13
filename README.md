@@ -21,6 +21,6 @@
     using (var soapClient = new SoapClient(() => new HttpClient()))
     {
         var result = soapClient.PostMessage(
-           					endpoint: TestTokenManagerEndpoint,
+           					endpoint: endpoint,
             				body: myBody);
     }

@@ -1,5 +1,6 @@
 ﻿using SoapClient.Interfaces;
 using System;
+using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
@@ -14,10 +15,7 @@ namespace SoapClient
         private readonly string Prefix = "soapenv";
         private readonly string Envelope = "Envelope";
         private readonly XNamespace SoapSchema = "http://schemas.xmlsoap.org/soap/envelope/";
-
-        private static readonly string Gzip = "gzip";
         private readonly string ApplicationXml = "application/xml";
-        private static readonly string AcceptEncoding = "Accept-Encoding";
 
         private HttpClient _httpClient;
 
@@ -32,13 +30,18 @@ namespace SoapClient
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SoapClient"/> class.
+        /// The internal HttpClient supports AutomaticDecompression of GZip and Deflate
         /// </summary>
         public SoapClient()
             : this(() =>
             {
-                var client = new HttpClient();
-                client.DefaultRequestHeaders.Clear();
-                client.DefaultRequestHeaders.Add(AcceptEncoding, Gzip);
+                var client = new HttpClient(
+                                new HttpClientHandler()
+                                {
+                                    AutomaticDecompression =
+                                        DecompressionMethods.GZip |
+                                        DecompressionMethods.Deflate
+                                });
 
                 return client;
             })
