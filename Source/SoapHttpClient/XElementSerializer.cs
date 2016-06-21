@@ -1,9 +1,9 @@
-﻿using SoapClient.Interfaces;
-using System.Xml;
+﻿using System.Xml;
 using System.Xml.Linq;
 using System.Xml.Serialization;
+using SoapHttpClient.Interfaces;
 
-namespace SoapClient
+namespace SoapHttpClient
 {
     public class XElementSerializer : IXElementSerializer
     {

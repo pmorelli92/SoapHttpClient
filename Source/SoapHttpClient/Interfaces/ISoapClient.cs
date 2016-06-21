@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using System.Xml.Linq;
 
-namespace SoapClient.Interfaces
+namespace SoapHttpClient.Interfaces
 {
     public interface ISoapClient
     {

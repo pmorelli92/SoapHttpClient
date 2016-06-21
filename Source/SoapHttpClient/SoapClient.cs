@@ -1,12 +1,12 @@
-﻿using SoapClient.Interfaces;
-using System;
+﻿using System;
 using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using SoapHttpClient.Interfaces;
 
-namespace SoapClient
+namespace SoapHttpClient
 {
     public class SoapClient : ISoapClient, IDisposable
     {

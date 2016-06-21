@@ -1,10 +1,10 @@
-﻿using SoapClient.Interfaces;
-using System;
+﻿using System;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using SoapHttpClient.Interfaces;
 
-namespace SoapClient.Extensions
+namespace SoapHttpClient.Extensions
 {
     public static class ISoapClientExtensions
     {

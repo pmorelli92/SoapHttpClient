@@ -7,8 +7,8 @@
     <ProjectGuid>{F04EB5E0-16BE-4485-935A-77B5CAF4080E}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>SoapClient</RootNamespace>
-    <AssemblyName>SoapClient</AssemblyName>
+    <RootNamespace>SoapHttpClient</RootNamespace>
+    <AssemblyName>SoapHttpClient</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
