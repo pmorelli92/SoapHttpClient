@@ -12,7 +12,7 @@
 	Ext.Post(string endpoint, object body, object header = null, Func<IXElementSerializer> xElementSerializerFactory = null)
 	Ext.PostAsync(string endpoint, object body, object header = null, Func<IXElementSerializer> xElementSerializerFactory = null)
 
-**Extended methods are to be found in the SoapClient.Extensions namespace.**
+**Extended methods are to be found in the SoapHttpClient.Extensions namespace.**
 
 ----------
 
