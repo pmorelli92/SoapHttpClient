@@ -18,6 +18,7 @@ namespace SoapHttpClient.Extensions
         /// <param name="endpoint">The endpoint.</param>
         /// <param name="body">The body of the SOAP message.</param>
         /// <param name="header">The header of the SOAP message.</param>
+        /// <param name="action"></param>
         public static async Task<HttpResponseMessage> PostAsync(
             this ISoapClient client,
             Uri endpoint,
@@ -34,6 +35,7 @@ namespace SoapHttpClient.Extensions
         /// <param name="endpoint">The endpoint.</param>
         /// <param name="body">The body of the SOAP message.</param>
         /// <param name="header">The header of the SOAP message.</param>
+        /// <param name="action"></param>
         public static HttpResponseMessage Post(
             this ISoapClient client,
             string endpoint,
@@ -51,6 +53,7 @@ namespace SoapHttpClient.Extensions
         /// <param name="endpoint">The endpoint.</param>
         /// <param name="body">The body of the SOAP message.</param>
         /// <param name="header">The header of the SOAP message.</param>
+        /// <param name="action"></param>
         public static HttpResponseMessage Post(
             this ISoapClient client,
             Uri endpoint,
@@ -72,6 +75,7 @@ namespace SoapHttpClient.Extensions
         ///     Allows the user to define a custom IXElementSerializer instance which will be
         ///     used for serialization
         /// </param>
+        /// <param name="action"></param>
         public static async Task<HttpResponseMessage> PostAsync(
             this ISoapClient client,
             string endpoint,
@@ -107,6 +111,7 @@ namespace SoapHttpClient.Extensions
         ///     Allows the user to define a custom IXElementSerializer instance which will be
         ///     used for serialization
         /// </param>
+        /// <param name="action"></param>
         public static async Task<HttpResponseMessage> PostAsync(
             this ISoapClient client,
             Uri endpoint,
@@ -129,6 +134,7 @@ namespace SoapHttpClient.Extensions
         ///     Allows the user to define a custom IXElementSerializer instance which will be
         ///     used for serialization
         /// </param>
+        /// <param name="action"></param>
         public static HttpResponseMessage Post(
             this ISoapClient client,
             string endpoint,
@@ -151,6 +157,7 @@ namespace SoapHttpClient.Extensions
         ///     Allows the user to define a custom IXElementSerializer instance which will be
         ///     used for serialization
         /// </param>
+        /// <param name="action"></param>
         public static HttpResponseMessage Post(
             this ISoapClient client,
             Uri endpoint,

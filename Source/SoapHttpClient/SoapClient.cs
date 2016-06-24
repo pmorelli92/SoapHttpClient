@@ -54,17 +54,7 @@ namespace SoapHttpClient
         ///     Initializes a new instance of the <see cref="SoapClient" /> class.
         ///     The internal HttpClient supports AutomaticDecompression of GZip and Deflate
         /// </summary>
-        public SoapClient(SoapVersion version = SoapVersion.Soap11) : this(() =>
-        {
-            var client = new HttpClient(new HttpClientHandler
-            {
-                AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate
-            });
-
-            return client;
-        }, version)
-        {
-        }
+        public SoapClient(SoapVersion version = SoapVersion.Soap11) : this(DefaultHttpFactory, version) { }
 
         public void Dispose()
         {
@@ -99,6 +89,13 @@ namespace SoapHttpClient
         }
 
         #region Private Methods
+        private static HttpClient DefaultHttpFactory() {
+            var client = new HttpClient(new HttpClientHandler {
+                AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate
+            });
+
+            return client;
+        }
 
         private string GetSoapMessage(XElement header, XElement body)
         {
