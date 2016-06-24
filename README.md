@@ -143,15 +143,12 @@ void Main()
   var endpoint = "http://sscweb.gsfc.nasa.gov:80/WS/helio/1/HeliocentricTrajectoriesService";
   var body = new XElement(ns.GetName("getAllObjects"));
 
-  var messageHandler = new ContentTypeChangingHandler(new HttpClientHandler());
-  Func<HttpClient> httpClientFactory = () => new HttpClient(messageHandler);
-
-  using (var soapClient = new SoapClient(httpClientFactory))
-  {
+  using (var soapClient = new SoapClient()) {
     var result = soapClient.Post(
-              endpoint: endpoint,
-              body: body);
-    result.Content.ReadAsStringAsync().Result.Dump();
+          endpoint: endpoint,
+          body: body,
+          mediaType: "text/xml");
+    Console.WriteLine(result.Content.ReadAsStringAsync().Result);
   }
 }
 ```
