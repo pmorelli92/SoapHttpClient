@@ -18,8 +18,25 @@ namespace SoapHttpClient.Tests
         private readonly XElement _fakeBody = new XElement(XName.Get("FakeMethod"));
         private readonly XElement _fakeHeader = new XElement(XName.Get("FakeHeader"));
 
+        private static Mock<ISoapClient> GetClientMock()
+        {
+            var clientMock = new Mock<ISoapClient>();
+
+            clientMock
+                .Setup(x => x.PostAsync(
+                    It.Is<string>(endpoint => endpoint == FakeEndpoint),
+                    It.Is<XElement>(body => body.Name == "FakeMethod"),
+                    It.Is<XElement>(header => header.Name == "FakeHeader"),
+                    It.Is<string>(action => action == FakeAction)))
+                .ReturnsAsync(new HttpResponseMessage())
+                .Verifiable();
+
+            return clientMock;
+        }
+
         [Test]
-        public void CallToPostAsyncWithUriEndpoint() {
+        public void CallToPostAsyncWithUriEndpoint()
+        {
             var clientMock = GetClientMock();
             clientMock.Object.PostAsync(new Uri(FakeEndpoint), _fakeBody, _fakeHeader, FakeAction).Wait();
             clientMock.VerifyAll();
@@ -104,28 +121,13 @@ namespace SoapHttpClient.Tests
             clientMock.VerifyAll();
             serializerMock.VerifyAll();
         }
-
-        #region Private Methods
-
-        private static Mock<ISoapClient> GetClientMock() {
-            var clientMock = new Mock<ISoapClient>();
-
-            clientMock
-                .Setup(x => x.PostAsync(
-                    It.Is<string>(endpoint => endpoint == FakeEndpoint),
-                    It.Is<XElement>(body => body.Name == "FakeMethod"),
-                    It.Is<XElement>(header => header.Name == "FakeHeader"),
-                    It.Is<string>(action => action == FakeAction)))
-                .ReturnsAsync(new HttpResponseMessage())
-                .Verifiable();
-
-            return clientMock;
-        }
-
-        #endregion
     }
 
-    public class FakeMethod { }
+    public class FakeMethod
+    {
+    }
 
-    public class FakeHeader { }
+    public class FakeHeader
+    {
+    }
 }

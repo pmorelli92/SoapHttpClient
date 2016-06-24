@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -20,7 +19,7 @@ namespace SoapHttpClient.Tests
         private const string SoapCharSet = "utf-8";
 
         private const string FakeResponseNoHeader =
-@"<soapenv:Envelope xmlns:soapenv=""http://schemas.xmlsoap.org/soap/envelope/"">
+            @"<soapenv:Envelope xmlns:soapenv=""http://schemas.xmlsoap.org/soap/envelope/"">
   <soapenv:Body>
     <FakeMethod />
   </soapenv:Body>
@@ -29,7 +28,7 @@ namespace SoapHttpClient.Tests
         private const string FakeAction = "https://example.com/soap/action";
 
         private const string FakeResponseWithHeader =
-@"<soapenv:Envelope xmlns:soapenv=""http://schemas.xmlsoap.org/soap/envelope/"">
+            @"<soapenv:Envelope xmlns:soapenv=""http://schemas.xmlsoap.org/soap/envelope/"">
   <soapenv:Header>
     <FakeHeader />
   </soapenv:Header>
@@ -70,7 +69,8 @@ namespace SoapHttpClient.Tests
                 .Respond(HttpStatusCode.OK);
 
             Task<HttpResponseMessage> result;
-            using (var sut = new SoapClient(() => new HttpClient(mockMessageHandler))) {
+            using (var sut = new SoapClient(() => new HttpClient(mockMessageHandler)))
+            {
                 result = sut.PostAsync(FakeEndpoint, _fakeBody);
             }
             result.ShouldBeType(typeof(Task<HttpResponseMessage>));
@@ -154,7 +154,8 @@ namespace SoapHttpClient.Tests
         }
 
         [Test]
-        public void SoapClientRequiresABodyToBeProvided() {
+        public void SoapClientRequiresABodyToBeProvided()
+        {
             var sut = new SoapClient();
             Action action = () => sut.PostAsync(FakeEndpoint, null).Wait();
             action.ShouldThrow<AggregateException>();

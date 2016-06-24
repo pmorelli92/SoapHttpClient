@@ -21,9 +21,9 @@ namespace SoapHttpClient
         private const string ActionParameter = "action";
 
         private readonly HttpClient _httpClient;
-        private readonly SoapVersion _version;
         private readonly string _mediaType;
         private readonly XNamespace _soapSchema;
+        private readonly SoapVersion _version;
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="SoapClient" /> class.
@@ -44,7 +44,8 @@ namespace SoapHttpClient
                     _mediaType = "application/soap+xml";
                     break;
                 default:
-                    throw new ArgumentOutOfRangeException(nameof(version), version, $"The {version.GetType().Name} enum contains an unsupported value.");
+                    throw new ArgumentOutOfRangeException(nameof(version), version,
+                        $"The {version.GetType().Name} enum contains an unsupported value.");
             }
 
             _httpClient = httpClientFactory();
@@ -54,7 +55,9 @@ namespace SoapHttpClient
         ///     Initializes a new instance of the <see cref="SoapClient" /> class.
         ///     The internal HttpClient supports AutomaticDecompression of GZip and Deflate
         /// </summary>
-        public SoapClient(SoapVersion version = SoapVersion.Soap11) : this(DefaultHttpFactory, version) { }
+        public SoapClient(SoapVersion version = SoapVersion.Soap11) : this(DefaultHttpFactory, version)
+        {
+        }
 
         public void Dispose()
         {
@@ -68,7 +71,8 @@ namespace SoapHttpClient
         /// <param name="body">The body of the SOAP message.</param>
         /// <param name="header">The header of the SOAP message.</param>
         /// <param name="action"></param>
-        public async Task<HttpResponseMessage> PostAsync(string endpoint, XElement body, XElement header = null, string action = null)
+        public async Task<HttpResponseMessage> PostAsync(string endpoint, XElement body, XElement header = null,
+            string action = null)
         {
             if (body == null)
                 throw new ArgumentNullException(Body);
@@ -89,8 +93,11 @@ namespace SoapHttpClient
         }
 
         #region Private Methods
-        private static HttpClient DefaultHttpFactory() {
-            var client = new HttpClient(new HttpClientHandler {
+
+        private static HttpClient DefaultHttpFactory()
+        {
+            var client = new HttpClient(new HttpClientHandler
+            {
                 AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate
             });
 
@@ -104,7 +111,7 @@ namespace SoapHttpClient
                 new XAttribute(
                     XNamespace.Xmlns + Prefix,
                     _soapSchema.NamespaceName)
-            );
+                );
 
             if (header != null)
                 soapMessage.Add(new XElement(_soapSchema + Header, header));

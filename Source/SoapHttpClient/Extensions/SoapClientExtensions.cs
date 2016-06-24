@@ -24,7 +24,8 @@ namespace SoapHttpClient.Extensions
             Uri endpoint,
             XElement body,
             XElement header = null,
-            string action = null) {
+            string action = null)
+        {
             return await client.PostAsync(endpoint.ToString(), body, header, action);
         }
 
@@ -169,13 +170,16 @@ namespace SoapHttpClient.Extensions
             return client.Post(endpoint.ToString(), body, header, xElementSerializerFactory, action);
         }
 
-        [Obsolete("PostMessage has been depricated and will be removed in a future version.  Please replace all calls to PostMessage with calls to the overload of Post.")]
+        [Obsolete(
+            "PostMessage has been depricated and will be removed in a future version.  Please replace all calls to PostMessage with calls to the overload of Post."
+            )]
         public static HttpResponseMessage PostMessage(
             this ISoapClient @this,
             string endpoint,
             object body,
             object header = null,
-            Func<IXElementSerializer> xElementSerializerFactory = null) {
+            Func<IXElementSerializer> xElementSerializerFactory = null)
+        {
             return @this.Post(endpoint, body, header, xElementSerializerFactory);
         }
     }
