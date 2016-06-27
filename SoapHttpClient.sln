@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.40629.0
+# Visual Studio 14
+VisualStudioVersion = 14.0.25123.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoapHttpClient", "Source\SoapHttpClient\SoapHttpClient.csproj", "{F04EB5E0-16BE-4485-935A-77B5CAF4080E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoapHttpClient.Tests", "Source\SoapHttpClient.Tests\SoapHttpClient.Tests.csproj", "{27092F94-9B07-4D4F-AFF2-61AC8EEF9232}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{F04EB5E0-16BE-4485-935A-77B5CAF4080E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F04EB5E0-16BE-4485-935A-77B5CAF4080E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F04EB5E0-16BE-4485-935A-77B5CAF4080E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{27092F94-9B07-4D4F-AFF2-61AC8EEF9232}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{27092F94-9B07-4D4F-AFF2-61AC8EEF9232}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{27092F94-9B07-4D4F-AFF2-61AC8EEF9232}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{27092F94-9B07-4D4F-AFF2-61AC8EEF9232}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
