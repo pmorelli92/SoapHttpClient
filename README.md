@@ -13,7 +13,14 @@ SoapClient()
 ```
 
 Initializes `SoapClient` with a default `HttpClientFactory` that implements
-automatic decompression.
+automatic decompression for Soap 1.1 version.
+
+```csharp
+SoapClient(SoapVersion version)
+```
+
+Initializes `SoapClient` with a default `HttpClientFactory` that implements
+automatic decompression for Soap 1.2 version.
 
 ```csharp
 SoapClient(Func<HttpClient> httpClientFactory)
@@ -21,7 +28,7 @@ SoapClient(Func<HttpClient> httpClientFactory)
 
 Initializes `SoapClient` with a `HttpClientFactory` provided by the caller, a
 `HttpClientFactory` is simply a `Func<HttpClient>`, i.e. a function that
-returns a `HttpClient`.
+returns a `HttpClient`. You can specify if you want to use the Soap 1.2 version, the default is 1.1
 
 ### Methods
 
@@ -32,11 +39,12 @@ returns a `HttpClient`.
 HttpResponseMessage PostAsync(
   string endpoint,
   XElement body,
-  XElement header = null)
+  XElement header = null,
+  action = null)
 ```
 
 Issues the SOAP request asynchronously to the `endpoint`, with the specified
-`body` and optional `header`.
+`body` and optional `header` and `action`.
 
 ### Extension Methods
 
@@ -44,38 +52,52 @@ Issues the SOAP request asynchronously to the `endpoint`, with the specified
 > *namespace.*
 
 ```csharp
-HttpResponseMessage ISoapClient.Post(
-  string endpoint,
+HttpResponseMessage SoapClient.PostAsync(
+  Uri endpoint,
   XElement body,
-  XElement header = null)
+  XElement header = null,
+  string action = null);
+```
+
+Issues the SOAP request asynchronously to the `endpoint`, with the specified
+`body` and optional `header` already serialized, additionally providing an action.
+
+```csharp
+HttpResponseMessage SoapClient.Post(
+  Uri/string endpoint,
+  XElement body,
+  XElement header = null,
+  string action = null);
 ```
 
 Issues the SOAP request synchronously to the `endpoint`, with the specified
-`body` and optional `header`.
+`body` and optional `header` already serialized, additionally providing an action.
 
 ```csharp
-HttpResponseMessage ISoapClient.PostAsync(
-  string endpoint,
-  XElement body,
-  XElement header = null,
+HttpResponseMessage SoapClient.PostAsync(
+  Uri/string endpoint,
+  object body,
+  object header = null,
+  string action = null);
   Func<IXElementSerializer> xElementSerializerFactory = null)
 ```
 
 Issues the SOAP request asynchronously to the `endpoint`, with the specified
 `body` and optional `header` additionally using a `XElementSerializer` to
-control the serialisation of the `body` and `header`.
+control the serialization of the `body` and `header`, additionally providing an action.
 
 ```csharp
-HttpResponseMessage ISoapClient.Post(
-  string endpoint,
-  XElement body,
-  XElement header = null,
+HttpResponseMessage SoapClient.Post(
+  Uri/string endpoint,
+  object body,
+  object header = null,
+  string action = null);
   Func<IXElementSerializer> xElementSerializerFactory = null)
 ```
 
 Issues the SOAP request synchronously to the `endpoint`, with the specified
 `body` and optional `header` additionally using a `XElementSerializer` to
-control the serialisation of the `body` and `header`.
+control the serialization of the `body` and `header`, additionally providing an action.
 
 ## Usage Examples
 
