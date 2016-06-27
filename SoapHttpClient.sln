@@ -1,11 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.25123.0
+VisualStudioVersion = 14.0.24720.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoapHttpClient", "Source\SoapHttpClient\SoapHttpClient.csproj", "{F04EB5E0-16BE-4485-935A-77B5CAF4080E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoapHttpClient.Tests", "Source\SoapHttpClient.Tests\SoapHttpClient.Tests.csproj", "{27092F94-9B07-4D4F-AFF2-61AC8EEF9232}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{AAFFAF89-5391-4C5B-B245-90B4C9946A2A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -24,5 +26,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{27092F94-9B07-4D4F-AFF2-61AC8EEF9232} = {AAFFAF89-5391-4C5B-B245-90B4C9946A2A}
 	EndGlobalSection
 EndGlobal
