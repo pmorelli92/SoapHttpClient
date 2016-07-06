@@ -71,7 +71,7 @@ namespace SoapHttpClient
         /// <param name="body">The body of the SOAP message.</param>
         /// <param name="header">The header of the SOAP message.</param>
         /// <param name="action"></param>
-        public async Task<HttpResponseMessage> PostAsync(string endpoint, XElement body, XElement header = null,
+        public Task<HttpResponseMessage> PostAsync(string endpoint, XElement body, XElement header = null,
             string action = null)
         {
             if (body == null)
@@ -81,7 +81,7 @@ namespace SoapHttpClient
             var content = new StringContent(soapMessage, Encoding.UTF8, _mediaType);
 
             if (action == null)
-                return await _httpClient.PostAsync(endpoint, content);
+                return _httpClient.PostAsync(endpoint, content);
 
             if (_version == SoapVersion.Soap11)
                 content.Headers.Add(ActionHeader, action);
@@ -89,7 +89,7 @@ namespace SoapHttpClient
             if (_version == SoapVersion.Soap12)
                 content.Headers.ContentType.Parameters.Add(new NameValueHeaderValue(ActionParameter, $"\"{action}\""));
 
-            return await _httpClient.PostAsync(endpoint, content);
+            return _httpClient.PostAsync(endpoint, content);
         }
 
         #region Private Methods

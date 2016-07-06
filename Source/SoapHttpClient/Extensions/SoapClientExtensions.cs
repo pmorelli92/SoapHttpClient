@@ -19,14 +19,14 @@ namespace SoapHttpClient.Extensions
         /// <param name="body">The body of the SOAP message.</param>
         /// <param name="header">The header of the SOAP message.</param>
         /// <param name="action"></param>
-        public static async Task<HttpResponseMessage> PostAsync(
+        public static Task<HttpResponseMessage> PostAsync(
             this ISoapClient client,
             Uri endpoint,
             XElement body,
             XElement header = null,
             string action = null)
         {
-            return await client.PostAsync(endpoint.ToString(), body, header, action);
+            return client.PostAsync(endpoint.ToString(), body, header, action);
         }
 
         /// <summary>
@@ -44,7 +44,7 @@ namespace SoapHttpClient.Extensions
             XElement header = null,
             string action = null)
         {
-            return client.PostAsync(endpoint, body, header, action).Result;
+            return Task.Run(() => client.PostAsync(endpoint, body, header, action)).Result;
         }
 
         /// <summary>
@@ -62,7 +62,7 @@ namespace SoapHttpClient.Extensions
             XElement header = null,
             string action = null)
         {
-            return client.PostAsync(endpoint.ToString(), body, header, action).Result;
+            return Task.Run(() => client.PostAsync(endpoint.ToString(), body, header, action)).Result;
         }
 
         /// <summary>
@@ -77,7 +77,7 @@ namespace SoapHttpClient.Extensions
         ///     used for serialization
         /// </param>
         /// <param name="action"></param>
-        public static async Task<HttpResponseMessage> PostAsync(
+        public static Task<HttpResponseMessage> PostAsync(
             this ISoapClient client,
             string endpoint,
             object body,
@@ -98,7 +98,7 @@ namespace SoapHttpClient.Extensions
             if (header != null)
                 headerElement = xElementSerializer.Serialize(header);
 
-            return await client.PostAsync(endpoint, xElementSerializer.Serialize(body), headerElement, action);
+            return client.PostAsync(endpoint, xElementSerializer.Serialize(body), headerElement, action);
         }
 
         /// <summary>
@@ -113,7 +113,7 @@ namespace SoapHttpClient.Extensions
         ///     used for serialization
         /// </param>
         /// <param name="action"></param>
-        public static async Task<HttpResponseMessage> PostAsync(
+        public static Task<HttpResponseMessage> PostAsync(
             this ISoapClient client,
             Uri endpoint,
             object body,
@@ -121,7 +121,7 @@ namespace SoapHttpClient.Extensions
             Func<IXElementSerializer> xElementSerializerFactory = null,
             string action = null)
         {
-            return await client.PostAsync(endpoint.ToString(), body, header, xElementSerializerFactory, action);
+            return client.PostAsync(endpoint.ToString(), body, header, xElementSerializerFactory, action);
         }
 
         /// <summary>
@@ -144,7 +144,7 @@ namespace SoapHttpClient.Extensions
             Func<IXElementSerializer> xElementSerializerFactory = null,
             string action = null)
         {
-            return client.PostAsync(endpoint, body, header, xElementSerializerFactory, action).Result;
+            return Task.Run(() => client.PostAsync(endpoint, body, header, xElementSerializerFactory, action)).Result;
         }
 
         /// <summary>
@@ -168,19 +168,6 @@ namespace SoapHttpClient.Extensions
             string action = null)
         {
             return client.Post(endpoint.ToString(), body, header, xElementSerializerFactory, action);
-        }
-
-        [Obsolete(
-            "PostMessage has been depricated and will be removed in a future version.  Please replace all calls to PostMessage with calls to the overload of Post."
-            )]
-        public static HttpResponseMessage PostMessage(
-            this ISoapClient @this,
-            string endpoint,
-            object body,
-            object header = null,
-            Func<IXElementSerializer> xElementSerializerFactory = null)
-        {
-            return @this.Post(endpoint, body, header, xElementSerializerFactory);
         }
     }
 }
