@@ -21,7 +21,6 @@ namespace SoapHttpClient.Tests
         private static Mock<ISoapClient> GetClientMock()
         {
             var clientMock = new Mock<ISoapClient>();
-
             clientMock
                 .Setup(x => x.PostAsync(
                     It.Is<string>(endpoint => endpoint == FakeEndpoint),
@@ -48,7 +47,7 @@ namespace SoapHttpClient.Tests
             var clientMock = new Mock<ISoapClient>();
             Action action =
                 () => clientMock.Object.PostAsync(new Uri(FakeEndpoint), null, null, null, FakeAction).Wait();
-            action.ShouldThrow<AggregateException>();
+            action.ShouldThrow<ArgumentNullException>();
         }
 
         [Test]
