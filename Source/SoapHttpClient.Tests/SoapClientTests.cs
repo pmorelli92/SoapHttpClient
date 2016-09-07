@@ -158,7 +158,7 @@ namespace SoapHttpClient.Tests
         {
             var sut = new SoapClient();
             Action action = () => sut.PostAsync(FakeEndpoint, null).Wait();
-            action.ShouldThrow<AggregateException>();
+            action.ShouldThrow<ArgumentNullException>();
         }
     }
 }

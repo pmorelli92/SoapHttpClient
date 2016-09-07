@@ -208,4 +208,7 @@ void Main()
 </S:Envelope>
 ```
 
+[Soap Icon][nounproj-soap] Created by Jakob Vogel from the Noun Project
+
   [msdn-httpresponsemessage]: https://msdn.microsoft.com/en-us/library/system.net.http.httpresponsemessage(v=vs.118).aspx
+  [nounproj-soap]: https://thenounproject.com/icon/44504/
