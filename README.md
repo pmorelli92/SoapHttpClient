@@ -1,4 +1,4 @@
-# SoapClient
+# SoapHttpClient
 
 > A lightweight wrapper of an `HttpClient` for POSTing messages that allows the
 > user to send the SOAP Body and Header (if needed) without caring about the

@@ -1,15 +1,14 @@
+﻿using FluentAssertions;
+using Moq;
+using SoapHttpClient.Interfaces;
 using System;
 using System.Net.Http;
 using System.Xml.Linq;
-using Moq;
-using NUnit.Framework;
-using Should;
 using SoapHttpClient.Extensions;
-using SoapHttpClient.Interfaces;
+using Xunit;
 
 namespace SoapHttpClient.Tests
 {
-    [TestFixture]
     public class SoapClientExtensionsTests
     {
         private const string FakeEndpoint = "https://example.com/soap";
@@ -18,9 +17,139 @@ namespace SoapHttpClient.Tests
         private readonly XElement _fakeBody = new XElement(XName.Get("FakeMethod"));
         private readonly XElement _fakeHeader = new XElement(XName.Get("FakeHeader"));
 
-        private static Mock<ISoapClient> GetClientMock()
+        [Fact]
+        public void CallToPostAsyncWithUriEndpoint()
+        {
+            // Setup
+            var clientMock = GetClientMock();
+
+            // Exercise
+            clientMock.Object.PostAsync(new Uri(FakeEndpoint), _fakeBody, _fakeHeader, FakeAction).Wait();
+
+            // Verify outcome
+            clientMock.VerifyAll();
+        }
+
+        [Fact]
+        public void CallToPostAsyncWithUriEndpointAndNullBody()
+        {
+            // Setup
+            var clientMock = new Mock<ISoapClient>();
+
+            // Exercise
+            Action act = () => clientMock.Object.PostAsync(new Uri(FakeEndpoint), null, null, null, FakeAction).Wait();
+
+            // Verify outcome
+            act.ShouldThrowExactly<ArgumentNullException>();
+        }
+
+        [Fact]
+        public void CallToPostAsyncWithUriEndpointAndNullSerializer()
+        {
+            // Setup
+            var clientMock = GetClientMock();
+
+            // Exercise
+            clientMock.Object.PostAsync(new Uri(FakeEndpoint), new FakeMethod(), new FakeHeader(), null, FakeAction).Wait();
+
+            // Verify outcome
+            clientMock.VerifyAll();
+        }
+
+        [Fact]
+        public void CallToPostAsyncWithUriEndpointAndSerializer()
+        {
+            // Setup
+            var clientMock = GetClientMock();
+            var serializerMock = new Mock<IXElementSerializer>();
+
+            serializerMock
+                .Setup(ser => ser.Serialize(It.Is<string>(x => x == "FakeMethod")))
+                .Returns(new XElement("FakeMethod"))
+                .Verifiable();
+
+            serializerMock
+                .Setup(ser => ser.Serialize(It.Is<string>(x => x == "FakeHeader")))
+                .Returns(new XElement("FakeHeader"))
+                .Verifiable();
+
+            // Exercise
+            clientMock.Object.PostAsync(new Uri(FakeEndpoint), "FakeMethod", "FakeHeader", () => serializerMock.Object, FakeAction).Wait();
+            
+            // Verify outcome
+            clientMock.VerifyAll();
+            serializerMock.VerifyAll();
+        }
+
+        [Fact]
+        public void CallToPostWithStringEndpoint()
+        {
+            // Setup
+            var clientMock = GetClientMock();
+
+            // Exercise
+            clientMock.Object.Post(FakeEndpoint, _fakeBody, _fakeHeader, FakeAction);
+
+            // Verify outcome
+            clientMock.VerifyAll();
+        }
+
+        [Fact]
+        public void CallToPostWithUriEndpoint()
+        {
+            // Setup
+            var clientMock = GetClientMock();
+
+            // Exercise
+            clientMock.Object.Post(new Uri(FakeEndpoint), _fakeBody, _fakeHeader, FakeAction);
+
+            // Verify outcome
+            clientMock.VerifyAll();
+        }
+
+        [Fact]
+        public void CallToPostWithUriEndpointAndNullSerializer()
+        {
+            // Setup
+            var clientMock = GetClientMock();
+
+            // Exercise
+            clientMock.Object.Post(new Uri(FakeEndpoint), new FakeMethod(), new FakeHeader(), null, FakeAction);
+
+            // Verify outcome
+            clientMock.VerifyAll();
+        }
+
+        [Fact]
+        public void CallToPostWithUriEndpointAndSerializer()
+        {
+            // Setup
+            var clientMock = GetClientMock();
+            var serializerMock = new Mock<IXElementSerializer>();
+
+            serializerMock
+                .Setup(ser => ser.Serialize(It.Is<string>(x => x == "FakeMethod")))
+                .Returns(new XElement("FakeMethod"))
+                .Verifiable();
+            serializerMock
+                .Setup(ser => ser.Serialize(It.Is<string>(x => x == "FakeHeader")))
+                .Returns(new XElement("FakeHeader"))
+                .Verifiable();
+
+            // Exercise
+            clientMock.Object.Post(new Uri(FakeEndpoint), "FakeMethod", "FakeHeader", () => serializerMock.Object, FakeAction);
+
+            // Verify outcome
+            clientMock.VerifyAll();
+            serializerMock.VerifyAll();
+        }
+
+        #region Private Methods
+
+        private Mock<ISoapClient> GetClientMock()
         {
             var clientMock = new Mock<ISoapClient>();
+
             clientMock
                 .Setup(x => x.PostAsync(
                     It.Is<string>(endpoint => endpoint == FakeEndpoint),
@@ -33,100 +162,18 @@ namespace SoapHttpClient.Tests
             return clientMock;
         }
 
-        [Test]
-        public void CallToPostAsyncWithUriEndpoint()
+        #endregion Private Methods
+
+        #region DTO
+
+        public class FakeMethod
         {
-            var clientMock = GetClientMock();
-            clientMock.Object.PostAsync(new Uri(FakeEndpoint), _fakeBody, _fakeHeader, FakeAction).Wait();
-            clientMock.VerifyAll();
         }
 
-        [Test]
-        public void CallToPostAsyncWithUriEndpointAndNullBody()
+        public class FakeHeader
         {
-            var clientMock = new Mock<ISoapClient>();
-            Action action =
-                () => clientMock.Object.PostAsync(new Uri(FakeEndpoint), null, null, null, FakeAction).Wait();
-            action.ShouldThrow<ArgumentNullException>();
         }
 
-        [Test]
-        public void CallToPostAsyncWithUriEndpointAndNullSerializer()
-        {
-            var clientMock = GetClientMock();
-            clientMock.Object.PostAsync(new Uri(FakeEndpoint), new FakeMethod(), new FakeHeader(), null, FakeAction)
-                .Wait();
-            clientMock.VerifyAll();
-        }
-
-        [Test]
-        public void CallToPostAsyncWithUriEndpointAndSerializer()
-        {
-            var serializerMock = new Mock<IXElementSerializer>();
-            serializerMock
-                .Setup(ser => ser.Serialize(It.Is<string>(x => x == "FakeMethod")))
-                .Returns(new XElement("FakeMethod"))
-                .Verifiable();
-            serializerMock
-                .Setup(ser => ser.Serialize(It.Is<string>(x => x == "FakeHeader")))
-                .Returns(new XElement("FakeHeader"))
-                .Verifiable();
-            var clientMock = GetClientMock();
-            clientMock.Object.PostAsync(new Uri(FakeEndpoint), "FakeMethod", "FakeHeader", () => serializerMock.Object,
-                FakeAction).Wait();
-            clientMock.VerifyAll();
-            serializerMock.VerifyAll();
-        }
-
-        [Test]
-        public void CallToPostWithStringEndpoint()
-        {
-            var clientMock = GetClientMock();
-            clientMock.Object.Post(FakeEndpoint, _fakeBody, _fakeHeader, FakeAction);
-            clientMock.VerifyAll();
-        }
-
-        [Test]
-        public void CallToPostWithUriEndpoint()
-        {
-            var clientMock = GetClientMock();
-            clientMock.Object.Post(new Uri(FakeEndpoint), _fakeBody, _fakeHeader, FakeAction);
-            clientMock.VerifyAll();
-        }
-
-        [Test]
-        public void CallToPostWithUriEndpointAndNullSerializer()
-        {
-            var clientMock = GetClientMock();
-            clientMock.Object.Post(new Uri(FakeEndpoint), new FakeMethod(), new FakeHeader(), null, FakeAction);
-            clientMock.VerifyAll();
-        }
-
-        [Test]
-        public void CallToPostWithUriEndpointAndSerializer()
-        {
-            var serializerMock = new Mock<IXElementSerializer>();
-            serializerMock
-                .Setup(ser => ser.Serialize(It.Is<string>(x => x == "FakeMethod")))
-                .Returns(new XElement("FakeMethod"))
-                .Verifiable();
-            serializerMock
-                .Setup(ser => ser.Serialize(It.Is<string>(x => x == "FakeHeader")))
-                .Returns(new XElement("FakeHeader"))
-                .Verifiable();
-            var clientMock = GetClientMock();
-            clientMock.Object.Post(new Uri(FakeEndpoint), "FakeMethod", "FakeHeader", () => serializerMock.Object,
-                FakeAction);
-            clientMock.VerifyAll();
-            serializerMock.VerifyAll();
-        }
-    }
-
-    public class FakeMethod
-    {
-    }
-
-    public class FakeHeader
-    {
+        #endregion DTO
     }
 }

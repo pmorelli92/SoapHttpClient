@@ -1,86 +1,95 @@
-﻿using System;
+﻿using FluentAssertions;
+using RichardSzalay.MockHttp;
+using System;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Xml.Linq;
-using NUnit.Framework;
-using RichardSzalay.MockHttp;
-using Should;
+using Xunit;
 
 namespace SoapHttpClient.Tests
 {
-    [TestFixture]
     public class SoapClientTests
     {
-        private const string FakeEndpoint = "https://example.com/soap";
+        private const string SoapCharSet = "utf-8";
         private const string Soap11MediaType = "text/xml";
         private const string Soap12MediaType = "application/soap+xml";
-        private const string SoapCharSet = "utf-8";
+        private const string FakeEndpoint = "https://example.com/soap";
+        private const string FakeAction = "https://example.com/soap/action";
 
         private const string FakeResponseNoHeader =
             @"<soapenv:Envelope xmlns:soapenv=""http://schemas.xmlsoap.org/soap/envelope/"">
-  <soapenv:Body>
-    <FakeMethod />
-  </soapenv:Body>
-</soapenv:Envelope>";
-
-        private const string FakeAction = "https://example.com/soap/action";
+                <soapenv:Body>
+                    <FakeMethod />
+                </soapenv:Body>
+            </soapenv:Envelope>";
 
         private const string FakeResponseWithHeader =
             @"<soapenv:Envelope xmlns:soapenv=""http://schemas.xmlsoap.org/soap/envelope/"">
-  <soapenv:Header>
-    <FakeHeader />
-  </soapenv:Header>
-  <soapenv:Body>
-    <FakeMethod />
-  </soapenv:Body>
-</soapenv:Envelope>";
+                <soapenv:Header>
+                    <FakeHeader />
+                </soapenv:Header>
+                <soapenv:Body>
+                    <FakeMethod />
+                </soapenv:Body>
+            </soapenv:Envelope>";
 
         private readonly XElement _fakeBody = new XElement(XName.Get("FakeMethod"));
         private readonly XElement _fakeHeader = new XElement(XName.Get("FakeHeader"));
 
-        [Test]
+        [Fact]
         public void Soap11ClientIncludesSoapActionParameter()
         {
+            // Setup
+            Task<HttpResponseMessage> result;
             var mockMessageHandler = new MockHttpMessageHandler();
+
             mockMessageHandler
                 .Expect(HttpMethod.Post, FakeEndpoint)
                 .With(req => req.Content.Headers.Single(h => h.Key == "SOAPAction").Value.Single() == FakeAction)
                 .Respond(HttpStatusCode.OK);
 
-            Task<HttpResponseMessage> result;
+            // Exercise
             using (var sut = new SoapClient(() => new HttpClient(mockMessageHandler)))
             {
                 result = sut.PostAsync(FakeEndpoint, _fakeBody, action: FakeAction);
             }
-            result.ShouldBeType(typeof(Task<HttpResponseMessage>));
-            mockMessageHandler.VerifyNoOutstandingExpectation();
+
+            // Verify outcome
+            VerifyHandlerWasUsedAndResponseType(mockMessageHandler, result);
         }
 
-        [Test]
+        [Fact]
         public void Soap11ClientIssuesAValidRequest()
         {
+            // Setup
+            Task<HttpResponseMessage> result;
             var mockMessageHandler = new MockHttpMessageHandler();
+
             mockMessageHandler
                 .Expect(HttpMethod.Post, FakeEndpoint)
                 .With(req => req.Content.Headers.ContentType.MediaType == Soap11MediaType)
                 .With(req => req.Content.Headers.ContentType.CharSet == SoapCharSet)
                 .Respond(HttpStatusCode.OK);
 
-            Task<HttpResponseMessage> result;
+            // Exercise
             using (var sut = new SoapClient(() => new HttpClient(mockMessageHandler)))
             {
                 result = sut.PostAsync(FakeEndpoint, _fakeBody);
             }
-            result.ShouldBeType(typeof(Task<HttpResponseMessage>));
-            mockMessageHandler.VerifyNoOutstandingExpectation();
+
+            // Verify outcome
+            VerifyHandlerWasUsedAndResponseType(mockMessageHandler, result);
         }
 
-        [Test]
+        [Fact]
         public void Soap12ClientIncludesSoapActionParameter()
         {
+            // Setup
+            Task<HttpResponseMessage> result;
             var mockMessageHandler = new MockHttpMessageHandler();
+
             mockMessageHandler
                 .Expect(HttpMethod.Post, FakeEndpoint)
                 .With(
@@ -89,76 +98,105 @@ namespace SoapHttpClient.Tests
                         $"\"{FakeAction}\"")
                 .Respond(HttpStatusCode.OK);
 
-            Task<HttpResponseMessage> result;
+            // Exercise
             using (var sut = new SoapClient(() => new HttpClient(mockMessageHandler), SoapVersion.Soap12))
             {
                 result = sut.PostAsync(FakeEndpoint, _fakeBody, action: FakeAction);
             }
-            result.ShouldBeType(typeof(Task<HttpResponseMessage>));
-            mockMessageHandler.VerifyNoOutstandingExpectation();
+
+            // Verify outcome
+            VerifyHandlerWasUsedAndResponseType(mockMessageHandler, result);
         }
 
-        [Test]
+        [Fact]
         public void Soap12ClientIssuesAValidRequest()
         {
+            // Setup
+            Task<HttpResponseMessage> result;
             var mockMessageHandler = new MockHttpMessageHandler();
+
             mockMessageHandler
                 .Expect(HttpMethod.Post, FakeEndpoint)
                 .With(req => req.Content.Headers.ContentType.MediaType == Soap12MediaType)
                 .With(req => req.Content.Headers.ContentType.CharSet == SoapCharSet)
                 .Respond(HttpStatusCode.OK);
 
-            Task<HttpResponseMessage> result;
+            // Exercise
             using (var sut = new SoapClient(() => new HttpClient(mockMessageHandler), SoapVersion.Soap12))
             {
                 result = sut.PostAsync(FakeEndpoint, _fakeBody);
             }
-            result.ShouldBeType(typeof(Task<HttpResponseMessage>));
-            mockMessageHandler.VerifyNoOutstandingExpectation();
+
+            // Verify outcome
+            VerifyHandlerWasUsedAndResponseType(mockMessageHandler, result);
         }
 
-        [Test]
+        [Fact]
         public void SoapClientIssuesAValidRequest()
         {
+            // Setup
+            Task<HttpResponseMessage> result;
             var mockMessageHandler = new MockHttpMessageHandler();
+
             mockMessageHandler
                 .Expect(HttpMethod.Post, FakeEndpoint)
-                .With(req => req.Content.ReadAsStringAsync().Result == FakeResponseNoHeader)
                 .Respond(HttpStatusCode.OK);
 
-            Task<HttpResponseMessage> result;
+            // Exercise
             using (var sut = new SoapClient(() => new HttpClient(mockMessageHandler)))
             {
                 result = sut.PostAsync(FakeEndpoint, _fakeBody);
+                result.Wait();
             }
-            result.ShouldBeType(typeof(Task<HttpResponseMessage>));
-            mockMessageHandler.VerifyNoOutstandingExpectation();
+
+            // Verify outcome
+            VerifyHandlerWasUsedAndResponseType(mockMessageHandler, result);
         }
 
-        [Test]
+        [Fact]
         public void SoapClientIssuesAValidRequestWithHeader()
         {
+            // Setup
+            Task<HttpResponseMessage> result;
             var mockMessageHandler = new MockHttpMessageHandler();
+
             mockMessageHandler
                 .Expect(HttpMethod.Post, FakeEndpoint)
-                .With(req => req.Content.ReadAsStringAsync().Result == FakeResponseWithHeader)
                 .Respond(HttpStatusCode.OK);
 
-            Task<HttpResponseMessage> result;
+            // Exercise
             using (var sut = new SoapClient(() => new HttpClient(mockMessageHandler)))
             {
                 result = sut.PostAsync(FakeEndpoint, _fakeBody, _fakeHeader);
             }
-            result.ShouldBeType(typeof(Task<HttpResponseMessage>));
-            mockMessageHandler.VerifyNoOutstandingExpectation();
+
+            // Verify outcome
+            VerifyHandlerWasUsedAndResponseType(mockMessageHandler, result);
         }
 
-        [Test]
+        [Fact]
         public void SoapClientRequiresABodyToBeProvided()
         {
+            // Setup
             var sut = new SoapClient();
-            Action action = () => sut.PostAsync(FakeEndpoint, null).Wait();
-            action.ShouldThrow<ArgumentNullException>();
+
+            // Exercise
+            Action act = () => sut.PostAsync(FakeEndpoint, null).Wait();
+
+            // Verify outcome
+            act.ShouldThrowExactly<ArgumentNullException>();
         }
+
+        #region Private Methods
+
+        private void VerifyHandlerWasUsedAndResponseType(
+            MockHttpMessageHandler mockMessageHandler,
+            Task<HttpResponseMessage> result)
+        {
+            mockMessageHandler.VerifyNoOutstandingExpectation();
+            result.Should().BeOfType(typeof(Task<HttpResponseMessage>));
+        }
+
+        #endregion Private Methods
     }
 }
