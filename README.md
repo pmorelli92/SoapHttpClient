@@ -1,4 +1,4 @@
-#[SoapHttpClient][nuget-url]
+#SoapHttpClient  [![NuGet](https://img.shields.io/nuget/v/SoapHttpClient.svg)](https://www.nuget.org/packages/SoapHttpClient)
 
 > A lightweight wrapper of an `HttpClient` for POSTing messages that allows the
 > user to send the SOAP Body and Header (if needed) without caring about the
@@ -212,4 +212,3 @@ void Main()
 
   [msdn-httpresponsemessage]: https://msdn.microsoft.com/en-us/library/system.net.http.httpresponsemessage(v=vs.118).aspx
   [nounproj-soap]: https://thenounproject.com/icon/44504/
-  [nuget-url]: https://www.nuget.org/packages/SoapHttpClient/
