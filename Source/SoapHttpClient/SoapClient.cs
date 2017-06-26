@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -78,18 +80,14 @@ namespace SoapHttpClient
                 throw new ArgumentNullException(Body);
 
             var soapMessage = GetSoapMessage(header, body);
-            var content = new StringContent(soapMessage, Encoding.UTF8, _mediaType);
+            return PostAsync(endpoint, soapMessage, action);
+        }
 
-            if (action == null)
-                return _httpClient.PostAsync(endpoint, content);
-
-            if (_version == SoapVersion.Soap11)
-                content.Headers.Add(ActionHeader, action);
-
-            if (_version == SoapVersion.Soap12)
-                content.Headers.ContentType.Parameters.Add(new NameValueHeaderValue(ActionParameter, $"\"{action}\""));
-
-            return _httpClient.PostAsync(endpoint, content);
+        public Task<HttpResponseMessage> PostAsync(string endpoint, IEnumerable<XElement> bodyElements,
+            IEnumerable<XElement> headerElements, string action = null)
+        {
+            var soapMessage = GetSoapMessage(headerElements, bodyElements);
+            return PostAsync(endpoint, soapMessage, action);
         }
 
         #region Private Methods
@@ -102,6 +100,22 @@ namespace SoapHttpClient
             });
 
             return client;
+        }
+
+        private Task<HttpResponseMessage> PostAsync(string endpoint, string soapMessage, string action = null)
+        {
+            var content = new StringContent(soapMessage, Encoding.UTF8, _mediaType);
+
+            if (action == null)
+                return _httpClient.PostAsync(endpoint, content);
+
+            if (_version == SoapVersion.Soap11)
+                content.Headers.Add(ActionHeader, action);
+
+            if (_version == SoapVersion.Soap12)
+                content.Headers.ContentType.Parameters.Add(new NameValueHeaderValue(ActionParameter, $"\"{action}\""));
+
+            return _httpClient.PostAsync(endpoint, content);
         }
 
         private string GetSoapMessage(XElement header, XElement body)
@@ -117,6 +131,23 @@ namespace SoapHttpClient
                 soapMessage.Add(new XElement(_soapSchema + Header, header));
 
             soapMessage.Add(new XElement(_soapSchema + Body, body));
+
+            return new XElement(soapMessage).ToString();
+        }
+
+        private string GetSoapMessage(IEnumerable<XElement> headerElements, IEnumerable<XElement> bodyElements)
+        {
+            var soapMessage = new XElement(
+                _soapSchema + Envelope,
+                new XAttribute(
+                    XNamespace.Xmlns + Prefix,
+                    _soapSchema.NamespaceName)
+            );
+
+            if (headerElements.Any())
+                soapMessage.Add(new XElement(_soapSchema + Header, headerElements));
+
+            soapMessage.Add(new XElement(_soapSchema + Body, bodyElements));
 
             return new XElement(soapMessage).ToString();
         }
