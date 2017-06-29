@@ -1,13 +1,15 @@
 ﻿using SoapHttpClient.Enums;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 
-namespace SoapHttpClient
+namespace SoapHttpClient.Extensions
 {
-    public static class SoapClientExtensions
+    public static class SoapClientSyncObjectExtensions
     {
         /// <summary>
         /// Posts an asynchronous message.
@@ -17,19 +19,52 @@ namespace SoapHttpClient
         /// <param name="body">The body of the SOAP message.</param>
         /// <param name="header">The header of the SOAP message.</param>
         /// <param name="action"></param>
-        public static Task<HttpResponseMessage> PostAsync(
+        public static HttpResponseMessage Post(
             this ISoapClient client,
             Uri endpoint,
             SoapVersion soapVersion,
-            XElement body,
-            XElement header = null,
+            object body,
+            object header = null,
+            IXElementSerializer xElementSerializer = null,
             string action = null)
         {
-            return client.PostAsync(
+            if (xElementSerializer == null)
+                xElementSerializer = new XElementSerializer();
+
+            return SoapClientSyncExtensions.Post(
+                client,
                 endpoint,
                 soapVersion,
-                new[] { body },
-                header != null ? new[] { header } : default(IEnumerable<XElement>),
+                xElementSerializer.Serialize(body),
+                header != null ? new[] { xElementSerializer.Serialize(header) } : default(IEnumerable<XElement>));
+        }
+
+        /// <summary>
+        /// Posts an asynchronous message.
+        /// </summary>
+        /// <param name="client">Instance of SoapClient.</param>
+        /// <param name="endpoint">The endpoint.</param>
+        /// <param name="body">The body of the SOAP message.</param>
+        /// <param name="header">The header of the SOAP message.</param>
+        /// <param name="action"></param>
+        public static HttpResponseMessage Post(
+            this ISoapClient client,
+            Uri endpoint,
+            SoapVersion soapVersion,
+            IEnumerable<object> bodies,
+            object header,
+            IXElementSerializer xElementSerializer = null,
+            string action = null)
+        {
+            if (xElementSerializer == null)
+                xElementSerializer = new XElementSerializer();
+
+            return SoapClientSyncExtensions.Post(
+                client,
+                endpoint,
+                soapVersion,
+                bodies.Select(e => xElementSerializer.Serialize(e)),
+                header != null ? xElementSerializer.Serialize(header) : default(XElement),
                 action);
         }
 
@@ -41,44 +76,26 @@ namespace SoapHttpClient
         /// <param name="body">The body of the SOAP message.</param>
         /// <param name="header">The header of the SOAP message.</param>
         /// <param name="action"></param>
-        public static Task<HttpResponseMessage> PostAsync(
+        public static HttpResponseMessage Post(
             this ISoapClient client,
             Uri endpoint,
             SoapVersion soapVersion,
-            IEnumerable<XElement> bodies,
-            XElement header,
+            object body,
+            IEnumerable<object> headers,
+            IXElementSerializer xElementSerializer = null,
             string action = null)
         {
-            return client.PostAsync(
-                endpoint,
-                soapVersion,
-                bodies,
-                header != null ? new[] { header } : default(IEnumerable<XElement>),
-                action);
-        }
+            if (xElementSerializer == null)
+                xElementSerializer = new XElementSerializer();
 
-        /// <summary>
-        /// Posts an asynchronous message.
-        /// </summary>
-        /// <param name="client">Instance of SoapClient.</param>
-        /// <param name="endpoint">The endpoint.</param>
-        /// <param name="body">The body of the SOAP message.</param>
-        /// <param name="header">The header of the SOAP message.</param>
-        /// <param name="action"></param>
-        public static Task<HttpResponseMessage> PostAsync(
-            this ISoapClient client,
-            Uri endpoint,
-            SoapVersion soapVersion,
-            XElement body,
-            IEnumerable<XElement> headers,
-            string action = null)
-        {
-            return client.PostAsync(
+            return SoapClientSyncExtensions.Post(
+                client,
                 endpoint,
                 soapVersion,
-                body,
-                headers,
+                xElementSerializer.Serialize(body),
+                headers.Select(e => xElementSerializer.Serialize(e)),
                 action);
+
         }
     }
 }

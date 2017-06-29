@@ -1,4 +1,4 @@
-namespace SoapHttpClient
+namespace SoapHttpClient.Enums
 {
     public enum SoapVersion
     {

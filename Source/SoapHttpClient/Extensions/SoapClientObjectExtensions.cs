@@ -1,13 +1,14 @@
 ﻿using SoapHttpClient.Enums;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 
-namespace SoapHttpClient
+namespace SoapHttpClient.Extensions
 {
-    public static class SoapClientExtensions
+    public static class SoapClientObjectExtensions
     {
         /// <summary>
         /// Posts an asynchronous message.
@@ -21,15 +22,20 @@ namespace SoapHttpClient
             this ISoapClient client,
             Uri endpoint,
             SoapVersion soapVersion,
-            XElement body,
-            XElement header = null,
+            object body,
+            object header = null,
+            IXElementSerializer xElementSerializer = null,
             string action = null)
         {
-            return client.PostAsync(
+            if (xElementSerializer == null)
+                xElementSerializer = new XElementSerializer();
+
+            return SoapClientExtensions.PostAsync(
+                client,
                 endpoint,
                 soapVersion,
-                new[] { body },
-                header != null ? new[] { header } : default(IEnumerable<XElement>),
+                xElementSerializer.Serialize(body),
+                header != null ? new[] { xElementSerializer.Serialize(header) } : default(IEnumerable<XElement>),
                 action);
         }
 
@@ -45,15 +51,20 @@ namespace SoapHttpClient
             this ISoapClient client,
             Uri endpoint,
             SoapVersion soapVersion,
-            IEnumerable<XElement> bodies,
-            XElement header,
+            IEnumerable<object> bodies,
+            object header,
+            IXElementSerializer xElementSerializer = null,
             string action = null)
         {
-            return client.PostAsync(
+            if (xElementSerializer == null)
+                xElementSerializer = new XElementSerializer();
+
+            return SoapClientExtensions.PostAsync(
+                client,
                 endpoint,
                 soapVersion,
-                bodies,
-                header != null ? new[] { header } : default(IEnumerable<XElement>),
+                bodies.Select(e => xElementSerializer.Serialize(e)),
+                header != null ? xElementSerializer.Serialize(header) : default(XElement),
                 action);
         }
 
@@ -69,15 +80,20 @@ namespace SoapHttpClient
             this ISoapClient client,
             Uri endpoint,
             SoapVersion soapVersion,
-            XElement body,
-            IEnumerable<XElement> headers,
+            object body,
+            IEnumerable<object> headers,
+            IXElementSerializer xElementSerializer = null,
             string action = null)
         {
-            return client.PostAsync(
+            if (xElementSerializer == null)
+                xElementSerializer = new XElementSerializer();
+
+            return SoapClientExtensions.PostAsync(
+                client,
                 endpoint,
                 soapVersion,
-                body,
-                headers,
+                xElementSerializer.Serialize(body),
+                headers.Select(e => xElementSerializer.Serialize(e)),
                 action);
         }
     }

@@ -7,7 +7,7 @@ using System.Xml.Linq;
 
 namespace SoapHttpClient
 {
-    public static class SoapClientExtensions
+    public static class SoapClientSyncExtensions
     {
         /// <summary>
         /// Posts an asynchronous message.
@@ -17,21 +17,16 @@ namespace SoapHttpClient
         /// <param name="body">The body of the SOAP message.</param>
         /// <param name="header">The header of the SOAP message.</param>
         /// <param name="action"></param>
-        public static Task<HttpResponseMessage> PostAsync(
+        public static HttpResponseMessage Post(
             this ISoapClient client,
             Uri endpoint,
             SoapVersion soapVersion,
             XElement body,
             XElement header = null,
             string action = null)
-        {
-            return client.PostAsync(
-                endpoint,
-                soapVersion,
-                new[] { body },
-                header != null ? new[] { header } : default(IEnumerable<XElement>),
-                action);
-        }
+                => ResolveTask(() =>
+                    SoapClientExtensions.PostAsync(
+                        client, endpoint, soapVersion, body, header, action));
 
         /// <summary>
         /// Posts an asynchronous message.
@@ -41,21 +36,16 @@ namespace SoapHttpClient
         /// <param name="body">The body of the SOAP message.</param>
         /// <param name="header">The header of the SOAP message.</param>
         /// <param name="action"></param>
-        public static Task<HttpResponseMessage> PostAsync(
+        public static HttpResponseMessage Post(
             this ISoapClient client,
             Uri endpoint,
             SoapVersion soapVersion,
             IEnumerable<XElement> bodies,
             XElement header,
             string action = null)
-        {
-            return client.PostAsync(
-                endpoint,
-                soapVersion,
-                bodies,
-                header != null ? new[] { header } : default(IEnumerable<XElement>),
-                action);
-        }
+                => ResolveTask(() =>
+                    SoapClientExtensions.PostAsync(
+                        client, endpoint, soapVersion, bodies, header, action));
 
         /// <summary>
         /// Posts an asynchronous message.
@@ -65,20 +55,24 @@ namespace SoapHttpClient
         /// <param name="body">The body of the SOAP message.</param>
         /// <param name="header">The header of the SOAP message.</param>
         /// <param name="action"></param>
-        public static Task<HttpResponseMessage> PostAsync(
+        public static HttpResponseMessage Post(
             this ISoapClient client,
             Uri endpoint,
             SoapVersion soapVersion,
             XElement body,
             IEnumerable<XElement> headers,
             string action = null)
+                => ResolveTask(() =>
+                    SoapClientExtensions.PostAsync(
+                        client, endpoint, soapVersion, body, headers, action));
+
+        #region Private Methods
+
+        private static HttpResponseMessage ResolveTask(Func<Task<HttpResponseMessage>> fn)
         {
-            return client.PostAsync(
-                endpoint,
-                soapVersion,
-                body,
-                headers,
-                action);
+            return Task.Run(() => fn()).Result;
         }
+
+        #endregion Private Methods
     }
 }

@@ -1,8 +1,18 @@
-#SoapHttpClient  [![NuGet](https://img.shields.io/nuget/v/SoapHttpClient.svg)](https://www.nuget.org/packages/SoapHttpClient)
+# SoapHttpClient  [![NuGet](https://img.shields.io/nuget/v/SoapHttpClient.svg)](https://www.nuget.org/packages/SoapHttpClient)
 
 > A lightweight wrapper of an `HttpClient` for POSTing messages that allows the
 > user to send the SOAP Body and Header (if needed) without caring about the
 > envelope.
+
+## Changelog
+
+### 2.0.0
+
+- Major refactor to the codebase.
+- Added the functionality of adding more than one header and/or body in the envelope.
+- The ctor will no longer determine the SoapVersion, since it is a message property and the API should be ignorant about this.
+- **[BREAKING CHANGE]: SoapVersion is now required for every message.**
+- **[BREAKING CHANGE]: Removed methods where the endpoint was a string instead of an uri.**
 
 ## API
 
@@ -12,92 +22,96 @@
 SoapClient()
 ```
 
-Initializes `SoapClient` with a default `HttpClientFactory` that implements
-automatic decompression for Soap 1.1 version.
-
-```csharp
-SoapClient(SoapVersion version)
-```
-
-Initializes `SoapClient` with a default `HttpClientFactory` that implements
-automatic decompression for Soap 1.2 version.
+Initializes `SoapClient` with a default `HttpClientFactory` that implements automatic decompression.
 
 ```csharp
 SoapClient(Func<HttpClient> httpClientFactory)
 ```
 
-Initializes `SoapClient` with a `HttpClientFactory` provided by the caller, a
-`HttpClientFactory` is simply a `Func<HttpClient>`, i.e. a function that
-returns a `HttpClient`. You can specify if you want to use the Soap 1.2 version, the default is 1.1
+Initializes `SoapClient` with a `HttpClientFactory` provided by the caller.
+The `HttpClientFactory` is simply a `Func<HttpClient>` that returns the HttpClient.
+
+This is in order for the consumer to manage all aspects of the HTTP Request using a `HttpMessageHandler` 
+
+------------------
 
 ### Methods
 
-> All **Methods** and **Extension Methods** return a
-> [`HttpResponseMessage`][msdn-httpresponsemessage].
+> All **Methods** and **Extension Methods** returns a Task of [`HttpResponseMessage`][msdn-httpresponsemessage]
+
+The interface makes the client implement the following method:
 
 ```csharp
-HttpResponseMessage PostAsync(
-  string endpoint,
-  XElement body,
-  XElement header = null,
-  action = null)
+Task<HttpResponseMessage> PostAsync(
+	Uri endpoint, 
+	SoapVersion soapVersion, 
+	IEnumerable<XElement> bodies, 
+	IEnumerable<XElement> headers = null, 
+	string action = null);
 ```
 
-Issues the SOAP request asynchronously to the `endpoint`, with the specified
-`body` and optional `header` and `action`.
+Allowing us to send the following calls:
 
-### Extension Methods
+- Uri / Version / Bodies
+- Uri / Version / Bodies / Headers
+- Uri / Version / Bodies / Headers / Action
 
-> *Extension methods are to be found in the `SoapHttpClient.Extensions`*
-> *namespace.*
+------------------
+
+Then there are sugar sintax extension methods:
 
 ```csharp
-HttpResponseMessage SoapClient.PostAsync(
-  Uri endpoint,
-  XElement body,
-  XElement header = null,
-  string action = null);
+Task<HttpResponseMessage> PostAsync(
+	this ISoapClient client,
+	Uri endpoint,
+	SoapVersion soapVersion,
+	XElement body,
+	XElement header = null,
+	string action = null);
+			
+Task<HttpResponseMessage> PostAsync(
+	this ISoapClient client,
+	Uri endpoint,
+	SoapVersion soapVersion,
+	IEnumerable<XElement> bodies,
+	XElement header,
+	string action = null);
+			
+Task<HttpResponseMessage> PostAsync(
+	this ISoapClient client,
+	Uri endpoint,
+	SoapVersion soapVersion,
+	XElement body,
+	IEnumerable<XElement> headers,
+	string action = null);
 ```
 
-Issues the SOAP request asynchronously to the `endpoint`, with the specified
-`body` and optional `header` already serialized, additionally providing an action.
+Allowing us to send the following calls:
 
-```csharp
-HttpResponseMessage SoapClient.Post(
-  Uri/string endpoint,
-  XElement body,
-  XElement header = null,
-  string action = null);
-```
+- Uri / Version / Body
+- Uri / Version / Body / Header
+- Uri / Version / Body / Header / Action
+- Uri / Version / Bodies / Header
+- Uri / Version / Bodies / Header / Action
+- Uri / Version / Body / Headers
+- Uri / Version / Body / Headers / Action
 
-Issues the SOAP request synchronously to the `endpoint`, with the specified
-`body` and optional `header` already serialized, additionally providing an action.
+------------------
 
-```csharp
-HttpResponseMessage SoapClient.PostAsync(
-  Uri/string endpoint,
-  object body,
-  object header = null,
-  string action = null);
-  Func<IXElementSerializer> xElementSerializerFactory = null)
-```
+With all of these variants we can send a message with:
 
-Issues the SOAP request asynchronously to the `endpoint`, with the specified
-`body` and optional `header` additionally using a `XElementSerializer` to
-control the serialization of the `body` and `header`, additionally providing an action.
+- 1 Body - 1 Header
+- 1 Body - N Headers
+- N Bodies - 1 Header
+- N Bodies - N Headers
 
-```csharp
-HttpResponseMessage SoapClient.Post(
-  Uri/string endpoint,
-  object body,
-  object header = null,
-  string action = null);
-  Func<IXElementSerializer> xElementSerializerFactory = null)
-```
+------------------
 
-Issues the SOAP request synchronously to the `endpoint`, with the specified
-`body` and optional `header` additionally using a `XElementSerializer` to
-control the serialization of the `body` and `header`, additionally providing an action.
+There are also extension methods for sync calls:
+
+> Their method name is **Post** and their return type is [`HttpResponseMessage`][msdn-httpresponsemessage]
+
+Finally, we have extensions methods for using bodies and headers as objects and using serialization the default or a custom `IXElementSerializer` to serialize those objects to XElement.
 
 ## Usage Examples
 
@@ -210,5 +224,5 @@ void Main()
 
 [Soap Icon][nounproj-soap] Created by Jakob Vogel from the Noun Project
 
-  [msdn-httpresponsemessage]: https://msdn.microsoft.com/en-us/library/system.net.http.httpresponsemessage(v=vs.118).aspx
-  [nounproj-soap]: https://thenounproject.com/icon/44504/
+[msdn-httpresponsemessage]: https://msdn.microsoft.com/en-us/library/system.net.http.httpresponsemessage(v=vs.118).aspx
+[nounproj-soap]: https://thenounproject.com/icon/44504/
