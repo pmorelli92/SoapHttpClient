@@ -2,6 +2,8 @@
 using Moq;
 using SoapHttpClient.Interfaces;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Xml.Linq;
 using SoapHttpClient.Extensions;
@@ -17,6 +19,17 @@ namespace SoapHttpClient.Tests
         private readonly XElement _fakeBody = new XElement(XName.Get("FakeMethod"));
         private readonly XElement _fakeHeader = new XElement(XName.Get("FakeHeader"));
 
+        private readonly IEnumerable<XElement> _fakeBodyElements = new []
+        {
+            new XElement("BodyElement1"),
+            new XElement("BodyElement2")
+        };
+        private readonly IEnumerable<XElement> _fakeHeaderElements = new[]
+        {
+            new XElement("HeaderElement1"),
+            new XElement("HeaderElement2")
+        };
+
         [Fact]
         public void CallToPostAsyncWithUriEndpoint()
         {
@@ -25,6 +38,19 @@ namespace SoapHttpClient.Tests
 
             // Exercise
             clientMock.Object.PostAsync(new Uri(FakeEndpoint), _fakeBody, _fakeHeader, FakeAction).Wait();
+
+            // Verify outcome
+            clientMock.VerifyAll();
+        }
+
+        [Fact]
+        public void CallToPostAsyncWithUriEndpointMultiple()
+        {
+            // Setup
+            var clientMock = GetClientMockMultiple();
+
+            // Exercise
+            clientMock.Object.PostAsync(new Uri(FakeEndpoint), _fakeBodyElements, _fakeHeaderElements, FakeAction).Wait();
 
             // Verify outcome
             clientMock.VerifyAll();
@@ -146,7 +172,7 @@ namespace SoapHttpClient.Tests
 
         #region Private Methods
 
-        private Mock<ISoapClient> GetClientMock()
+        private static Mock<ISoapClient> GetClientMock()
         {
             var clientMock = new Mock<ISoapClient>();
 
@@ -155,6 +181,28 @@ namespace SoapHttpClient.Tests
                     It.Is<string>(endpoint => endpoint == FakeEndpoint),
                     It.Is<XElement>(body => body.Name == "FakeMethod"),
                     It.Is<XElement>(header => header.Name == "FakeHeader"),
+                    It.Is<string>(action => action == FakeAction)))
+                .ReturnsAsync(new HttpResponseMessage())
+                .Verifiable();
+
+            return clientMock;
+        }
+
+        private static Mock<ISoapClient> GetClientMockMultiple()
+        {
+            var clientMock = new Mock<ISoapClient>();
+
+            clientMock
+                .Setup(x => x.PostAsync(
+                    It.Is<string>(endpoint => endpoint == FakeEndpoint),
+                    It.Is<IEnumerable<XElement>>(
+                        bodyElements => bodyElements
+                            .All(e => e.Name.ToString()
+                            .StartsWith("BodyElement"))),
+                    It.Is<IEnumerable<XElement>>(
+                        headerElements => headerElements
+                            .All(e => e.Name.ToString()
+                            .StartsWith("HeaderElement"))),
                     It.Is<string>(action => action == FakeAction)))
                 .ReturnsAsync(new HttpResponseMessage())
                 .Verifiable();
