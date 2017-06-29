@@ -1,0 +1,35 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Description>HttpClient wrapper for sending SOAP messages.</Description>
+    <Copyright>Copyright 2016, Pablo Morelli</Copyright>
+    <AssemblyTitle>SoapHttpClient</AssemblyTitle>
+    <VersionPrefix>1.4.3</VersionPrefix>
+    <Authors>Pablo Morelli</Authors>
+    <TargetFrameworks>net45;netstandard1.6</TargetFrameworks>
+    <AssemblyName>SoapHttpClient</AssemblyName>
+    <PackageId>SoapHttpClient</PackageId>
+    <PackageTags>soap;async;http;client;httpclient</PackageTags>
+    <PackageReleaseNotes>Added .NET Standard 1.6 support thus supporting .NET Core</PackageReleaseNotes>
+    <PackageIconUrl>http://i.imgur.com/jolCa0c.png</PackageIconUrl>
+    <PackageProjectUrl>https://github.com/pmorelli92/SoapHttpClient</PackageProjectUrl>
+    <PackageLicenseUrl>https://raw.githubusercontent.com/pmorelli92/SoapClient/master/LICENSE</PackageLicenseUrl>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/pmorelli92/SoapClient.git</RepositoryUrl>
+    <NetStandardImplicitPackageVersion Condition=" '$(TargetFramework)' == 'netstandard1.6' ">1.6.1</NetStandardImplicitPackageVersion>
+  </PropertyGroup>
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net45' ">
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Xml.Serialization" />
+    <Reference Include="System" />
+    <Reference Include="Microsoft.CSharp" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.6' ">
+    <PackageReference Include="System.Xml.XmlSerializer" Version="4.3.0" />
+  </ItemGroup>
+
+</Project>
