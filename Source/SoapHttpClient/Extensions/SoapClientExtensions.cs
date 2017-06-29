@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -63,6 +64,42 @@ namespace SoapHttpClient.Extensions
             string action = null)
         {
             return Task.Run(() => client.PostAsync(endpoint.ToString(), body, header, action)).Result;
+        }
+
+        /// <summary>
+        ///     Posts a message.
+        /// </summary>
+        /// <param name="client">Instance of SoapClient</param>
+        /// <param name="endpoint">The endpoint.</param>
+        /// <param name="bodyElements">The body elements of the SOAP message.</param>
+        /// <param name="headerElements">The header elements of the SOAP message.</param>
+        /// <param name="action"></param>
+        public static Task<HttpResponseMessage> PostAsync(
+            this ISoapClient client,
+            Uri endpoint,
+            IEnumerable<XElement> bodyElements,
+            IEnumerable<XElement> headerElements,
+            string action = null)
+        {
+            return client.PostAsync(endpoint.ToString(), bodyElements, headerElements, action);
+        }
+
+        /// <summary>
+        ///     Posts a message.
+        /// </summary>
+        /// <param name="client">Instance of SoapClient</param>
+        /// <param name="endpoint">The endpoint.</param>
+        /// <param name="bodyElements">The body elements of the SOAP message.</param>
+        /// <param name="headerElements">The header elements of the SOAP message.</param>
+        /// <param name="action"></param>
+        public static HttpResponseMessage Post(
+            this ISoapClient client,
+            string endpoint,
+            IEnumerable<XElement> bodyElements,
+            IEnumerable<XElement> headerElements,
+            string action = null)
+        {
+            return Task.Run(() => client.PostAsync(endpoint, bodyElements, headerElements, action)).Result;
         }
 
         /// <summary>
