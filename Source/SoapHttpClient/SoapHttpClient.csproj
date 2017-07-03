@@ -2,15 +2,21 @@
 
   <PropertyGroup>
     <Description>HttpClient wrapper for sending SOAP messages.</Description>
-    <Copyright>Copyright 2016, Pablo Morelli</Copyright>
+    <Copyright>Copyright 2017, Pablo Morelli</Copyright>
     <AssemblyTitle>SoapHttpClient</AssemblyTitle>
-    <VersionPrefix>1.4.3</VersionPrefix>
+    <VersionPrefix>2.0.0</VersionPrefix>
     <Authors>Pablo Morelli</Authors>
     <TargetFrameworks>net45;netstandard1.6</TargetFrameworks>
     <AssemblyName>SoapHttpClient</AssemblyName>
     <PackageId>SoapHttpClient</PackageId>
     <PackageTags>soap;async;http;client;httpclient</PackageTags>
-    <PackageReleaseNotes>Added .NET Standard 1.6 support thus supporting .NET Core</PackageReleaseNotes>
+    <PackageReleaseNotes>
+		- Major refactor to the codebase.
+		- Added the functionality of adding more than one header and/or body in the envelope.
+		- The ctor will no longer determine the SoapVersion, since it is a message property and the API should be ignorant about this.
+		- BREAKING CHANGE: SoapVersion is now required for every message.
+		- BREAKING CHANGE: Removed methods where the endpoint was a string instead of an uri.
+	</PackageReleaseNotes>
     <PackageIconUrl>http://i.imgur.com/jolCa0c.png</PackageIconUrl>
     <PackageProjectUrl>https://github.com/pmorelli92/SoapHttpClient</PackageProjectUrl>
     <PackageLicenseUrl>https://raw.githubusercontent.com/pmorelli92/SoapClient/master/LICENSE</PackageLicenseUrl>
