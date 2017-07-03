@@ -17,7 +17,7 @@
 		- BREAKING CHANGE: SoapVersion is now required for every message.
 		- BREAKING CHANGE: Removed methods where the endpoint was a string instead of an uri.
 	</PackageReleaseNotes>
-    <PackageIconUrl>http://i.imgur.com/jolCa0c.png</PackageIconUrl>
+    <PackageIconUrl>https://github.com/pmorelli92/SoapHttpClient/blob/master/assets/icon.png</PackageIconUrl>
     <PackageProjectUrl>https://github.com/pmorelli92/SoapHttpClient</PackageProjectUrl>
     <PackageLicenseUrl>https://raw.githubusercontent.com/pmorelli92/SoapClient/master/LICENSE</PackageLicenseUrl>
     <RepositoryType>git</RepositoryType>
