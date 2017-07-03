@@ -1,200 +1,191 @@
 ﻿using FluentAssertions;
-using RichardSzalay.MockHttp;
+using SoapHttpClient.Enums;
+using SoapHttpClient.Fixtures.Attributes;
 using System;
+using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using System.Net.Http;
-using System.Threading.Tasks;
 using System.Xml.Linq;
 using Xunit;
+using System.Net;
+using System.Net.Http.Headers;
+using SoapHttpClient.Fixtures;
+using Ploeh.AutoFixture;
+using Ploeh.AutoFixture.Kernel;
 
-namespace SoapHttpClient.Tests
+namespace SoapHttpClient
 {
     public class SoapClientTests
     {
-        private const string SoapCharSet = "utf-8";
-        private const string Soap11MediaType = "text/xml";
-        private const string Soap12MediaType = "application/soap+xml";
-        private const string FakeEndpoint = "https://example.com/soap";
-        private const string FakeAction = "https://example.com/soap/action";
+        #region Customizations
 
-        private const string FakeResponseNoHeader =
-            @"<soapenv:Envelope xmlns:soapenv=""http://schemas.xmlsoap.org/soap/envelope/"">
-                <soapenv:Body>
-                    <FakeMethod />
-                </soapenv:Body>
-            </soapenv:Envelope>";
-
-        private const string FakeResponseWithHeader =
-            @"<soapenv:Envelope xmlns:soapenv=""http://schemas.xmlsoap.org/soap/envelope/"">
-                <soapenv:Header>
-                    <FakeHeader />
-                </soapenv:Header>
-                <soapenv:Body>
-                    <FakeMethod />
-                </soapenv:Body>
-            </soapenv:Envelope>";
-
-        private readonly XElement _fakeBody = new XElement(XName.Get("FakeMethod"));
-        private readonly XElement _fakeHeader = new XElement(XName.Get("FakeHeader"));
-
-        [Fact]
-        public void Soap11ClientIncludesSoapActionParameter()
+        public class ActionIsNullCustomization : ICustomization
         {
-            // Setup
-            Task<HttpResponseMessage> result;
-            var mockMessageHandler = new MockHttpMessageHandler();
-
-            mockMessageHandler
-                .Expect(HttpMethod.Post, FakeEndpoint)
-                .With(req => req.Content.Headers.Single(h => h.Key == "SOAPAction").Value.Single() == FakeAction)
-                .Respond(HttpStatusCode.OK);
-
-            // Exercise
-            using (var sut = new SoapClient(() => new HttpClient(mockMessageHandler)))
+            public void Customize(IFixture fixture)
             {
-                result = sut.PostAsync(FakeEndpoint, _fakeBody, action: FakeAction);
+                fixture.Customizations.Add(
+                    new FilteringSpecimenBuilder(
+                        new FixedBuilder(default(string)),
+                        new ParameterSpecification(typeof(string), "action")));
             }
-
-            // Verify outcome
-            VerifyHandlerWasUsedAndResponseType(mockMessageHandler, result);
         }
 
-        [Fact]
-        public void Soap11ClientIssuesAValidRequest()
+        public class SoapVersion12Customization : ICustomization
         {
-            // Setup
-            Task<HttpResponseMessage> result;
-            var mockMessageHandler = new MockHttpMessageHandler();
-
-            mockMessageHandler
-                .Expect(HttpMethod.Post, FakeEndpoint)
-                .With(req => req.Content.Headers.ContentType.MediaType == Soap11MediaType)
-                .With(req => req.Content.Headers.ContentType.CharSet == SoapCharSet)
-                .Respond(HttpStatusCode.OK);
-
-            // Exercise
-            using (var sut = new SoapClient(() => new HttpClient(mockMessageHandler)))
+            public void Customize(IFixture fixture)
             {
-                result = sut.PostAsync(FakeEndpoint, _fakeBody);
+                fixture.Customizations.Add(
+                    new FilteringSpecimenBuilder(
+                        new FixedBuilder(SoapVersion.Soap12),
+                        new ParameterSpecification(typeof(SoapVersion), "soapVersion")));
             }
-
-            // Verify outcome
-            VerifyHandlerWasUsedAndResponseType(mockMessageHandler, result);
         }
 
-        [Fact]
-        public void Soap12ClientIncludesSoapActionParameter()
+        public class HeadersAreNullCustomization : ICustomization
         {
-            // Setup
-            Task<HttpResponseMessage> result;
-            var mockMessageHandler = new MockHttpMessageHandler();
-
-            mockMessageHandler
-                .Expect(HttpMethod.Post, FakeEndpoint)
-                .With(
-                    req =>
-                        req.Content.Headers.ContentType.Parameters.Single(h => h.Name == "action").Value ==
-                        $"\"{FakeAction}\"")
-                .Respond(HttpStatusCode.OK);
-
-            // Exercise
-            using (var sut = new SoapClient(() => new HttpClient(mockMessageHandler), SoapVersion.Soap12))
+            public void Customize(IFixture fixture)
             {
-                result = sut.PostAsync(FakeEndpoint, _fakeBody, action: FakeAction);
+                fixture.Customizations.Add(
+                    new FilteringSpecimenBuilder(
+                        new FixedBuilder(default(IEnumerable<XElement>)),
+                        new ParameterSpecification(typeof(IEnumerable<XElement>), "headers")));
             }
-
-            // Verify outcome
-            VerifyHandlerWasUsedAndResponseType(mockMessageHandler, result);
         }
 
-        [Fact]
-        public void Soap12ClientIssuesAValidRequest()
+        public class HeadersAreEmptyCustomization : ICustomization
         {
-            // Setup
-            Task<HttpResponseMessage> result;
-            var mockMessageHandler = new MockHttpMessageHandler();
-
-            mockMessageHandler
-                .Expect(HttpMethod.Post, FakeEndpoint)
-                .With(req => req.Content.Headers.ContentType.MediaType == Soap12MediaType)
-                .With(req => req.Content.Headers.ContentType.CharSet == SoapCharSet)
-                .Respond(HttpStatusCode.OK);
-
-            // Exercise
-            using (var sut = new SoapClient(() => new HttpClient(mockMessageHandler), SoapVersion.Soap12))
+            public void Customize(IFixture fixture)
             {
-                result = sut.PostAsync(FakeEndpoint, _fakeBody);
+                fixture.Customizations.Add(
+                    new FilteringSpecimenBuilder(
+                        new FixedBuilder(Enumerable.Empty<XElement>()),
+                        new ParameterSpecification(typeof(IEnumerable<XElement>), "headers")));
             }
-
-            // Verify outcome
-            VerifyHandlerWasUsedAndResponseType(mockMessageHandler, result);
         }
 
-        [Fact]
-        public void SoapClientIssuesAValidRequest()
+        public class OnlyOneHeaderAndOneBodyCustomization : ICustomization
         {
-            // Setup
-            Task<HttpResponseMessage> result;
-            var mockMessageHandler = new MockHttpMessageHandler();
-
-            mockMessageHandler
-                .Expect(HttpMethod.Post, FakeEndpoint)
-                .Respond(HttpStatusCode.OK);
-
-            // Exercise
-            using (var sut = new SoapClient(() => new HttpClient(mockMessageHandler)))
+            public void Customize(IFixture fixture)
             {
-                result = sut.PostAsync(FakeEndpoint, _fakeBody);
-                result.Wait();
-            }
+                fixture.Customizations.Add(
+                    new FilteringSpecimenBuilder(
+                        new FixedBuilder(new[] { fixture.Create<XElement>() }),
+                        new ParameterSpecification(typeof(IEnumerable<XElement>), "headers")));
 
-            // Verify outcome
-            VerifyHandlerWasUsedAndResponseType(mockMessageHandler, result);
+                fixture.Customizations.Add(
+                    new FilteringSpecimenBuilder(
+                        new FixedBuilder(new[] { fixture.Create<XElement>() }),
+                        new ParameterSpecification(typeof(IEnumerable<XElement>), "bodies")));
+            }
         }
 
-        [Fact]
-        public void SoapClientIssuesAValidRequestWithHeader()
+        #endregion Customizations
+
+        [Theory]
+        [DefaultData]
+        public void Sut_ShouldBeAssignableTo_ISoapClient(SoapClient sut)
         {
-            // Setup
-            Task<HttpResponseMessage> result;
-            var mockMessageHandler = new MockHttpMessageHandler();
-
-            mockMessageHandler
-                .Expect(HttpMethod.Post, FakeEndpoint)
-                .Respond(HttpStatusCode.OK);
-
-            // Exercise
-            using (var sut = new SoapClient(() => new HttpClient(mockMessageHandler)))
-            {
-                result = sut.PostAsync(FakeEndpoint, _fakeBody, _fakeHeader);
-            }
-
             // Verify outcome
-            VerifyHandlerWasUsedAndResponseType(mockMessageHandler, result);
+            sut.Should().BeAssignableTo<ISoapClient>();
         }
 
-        [Fact]
-        public void SoapClientRequiresABodyToBeProvided()
+        [Theory]
+        [InlineDefaultData(typeof(ActionIsNullCustomization))]
+        [InlineDefaultData(typeof(SoapVersion12Customization))]
+        [InlineDefaultData(typeof(HeadersAreNullCustomization))]
+        [InlineDefaultData(typeof(HeadersAreEmptyCustomization))]
+        [InlineDefaultData(typeof(OnlyOneHeaderAndOneBodyCustomization))]
+        public async void PostAsync_ShouldDoExpectedHttpCall(
+            Uri endpoint,
+            string action,
+            SoapVersion soapVersion,
+            IEnumerable<XElement> bodies,
+            IEnumerable<XElement> headers)
         {
             // Setup
-            var sut = new SoapClient();
+            // -- We use TestMessageHandler in order to check what call does the inner HttpClient made
+            var testMessageHandler = new TestMessageHandler();
+            var httpClient = new HttpClient(testMessageHandler);
+            var sut = new SoapClient(() => httpClient);
 
             // Exercise
-            Action act = () => sut.PostAsync(FakeEndpoint, null).Wait();
+            var actual = await sut.PostAsync(endpoint, soapVersion, bodies, headers, action);
 
             // Verify outcome
-            act.ShouldThrowExactly<ArgumentNullException>();
+            // -- Assert that we only made one call
+            actual.StatusCode.Should().Be(HttpStatusCode.OK);
+            var actualCall = testMessageHandler.CallStack.Should().ContainSingle().Subject;
+            // -- Assert the endpoint
+            actualCall.Uri.Should().Be(endpoint);
+            // -- Assert the headers
+            AssertActualHeaders(actualCall.Headers, soapVersion, action);
+            // -- Assert the request body
+            AssertRequestBody(soapVersion, actualCall.Body, bodies, headers);
         }
 
         #region Private Methods
 
-        private void VerifyHandlerWasUsedAndResponseType(
-            MockHttpMessageHandler mockMessageHandler,
-            Task<HttpResponseMessage> result)
+        private void AssertActualHeaders(HttpContentHeaders headers, SoapVersion soapVersion, string action)
         {
-            mockMessageHandler.VerifyNoOutstandingExpectation();
-            result.Should().BeOfType(typeof(Task<HttpResponseMessage>));
+            if (headers.Contains("ActionHeader"))
+            {
+                soapVersion.Should().Be(SoapVersion.Soap11);
+                headers.GetValues("ActionHeader").Single().Should().Be(action);
+            }
+            else if (headers.ContentType.Parameters.Any(e => e.Name == "ActionParameter"))
+            {
+                var actionParam = headers.ContentType.Parameters.Single(e => e.Name == "ActionParameter");
+                actionParam.Value.Should().Be($"\"{action}\"");
+                soapVersion.Should().Be(SoapVersion.Soap12);
+            }
+        }
+
+        private void AssertRequestBody(SoapVersion soapVersion, string body, IEnumerable<XElement> bodies, IEnumerable<XElement> headers)
+        {
+            // Get Namespaces
+            var expectedNameSpace =
+                (soapVersion == SoapVersion.Soap11)
+                    ? "http://schemas.xmlsoap.org/soap/envelope/"
+                    : "http://www.w3.org/2003/05/soap-envelope";
+
+            var actualEnvelope = XElement.Parse(body);
+
+            // Assert Envelope
+            actualEnvelope.Name.LocalName.Should().Be("Envelope");
+            actualEnvelope.Name.Namespace.NamespaceName.Should().Be(expectedNameSpace);
+            
+            // Assert Headers
+            if (headers != null && headers.Any())
+            {
+                var actualHeader =
+                    actualEnvelope.Elements()
+                    .Where(e => e.Name.LocalName == "Header")
+                    .Where(e => e.Name.Namespace.NamespaceName == expectedNameSpace)
+                    .Should()
+                    .ContainSingle()
+                    .Subject;
+
+                // Since FluentAssertions Should().Be(...) compares by instance and we dont have the same instance
+                // And Should().BeEquivalentTo(...) compares by object graph and generates a memory degration
+                // we will compare the elements using the .ToString() serialization of the XML
+                actualHeader.Elements().Select(e => e.ToString())
+                    .ShouldAllBeEquivalentTo(headers.Select(e => e.ToString()));
+            }
+
+            // Assert Bodies
+            var actualBody =
+                actualEnvelope.Elements()
+                .Where(e => e.Name.LocalName == "Body")
+                .Where(e => e.Name.Namespace.NamespaceName == expectedNameSpace)
+                .Should()
+                .ContainSingle()
+                .Subject;
+
+            // Since FluentAssertions Should().Be(...) compares by instance and we dont have the same instance
+            // And Should().BeEquivalentTo(...) compares by object graph and generates a memory degration
+            // we will compare the elements using the .ToString() serialization of the XML
+            actualBody.Elements().Select(e => e.ToString())
+                .ShouldAllBeEquivalentTo(bodies.Select(e => e.ToString()));
         }
 
         #endregion Private Methods
