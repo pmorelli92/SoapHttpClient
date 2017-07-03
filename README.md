@@ -108,6 +108,7 @@ With all of these variants we can send a message with:
 ------------------
 
 There are also extension methods for sync calls:
+**However we always recommend using async programming when you are able**.
 
 > Their method name is **Post** and their return type is [`HttpResponseMessage`][msdn-httpresponsemessage]
 
@@ -117,8 +118,7 @@ Finally, we have extensions methods for using bodies and headers as objects and 
 
 ### Controlling the Media Type
 
-As the `SoapHttpClient` wraps a `HttpClient` you can control all aspects of
-the HTTP Request using a `HttpMessageHandler`:
+As the `SoapHttpClient` wraps a `HttpClient` you can control all aspects of the HTTP Request using a `HttpMessageHandler`:
 
 ```csharp
 public class ContentTypeChangingHandler : DelegatingHandler
@@ -129,9 +129,7 @@ public class ContentTypeChangingHandler : DelegatingHandler
     HttpRequestMessage request,
     CancellationToken cancellationToken)
   {
-
     request.Content.Headers.ContentType = MediaTypeHeaderValue.Parse("text/xml; charset=utf-8");
-
     return await base.SendAsync(request, cancellationToken);
   }
 }
@@ -140,19 +138,25 @@ public class ContentTypeChangingHandler : DelegatingHandler
 ### Echo Service
 
 ```csharp
-var ns = XNamespace.Get("http://www.bccs.uib.no/EchoService.wsdl");
-var endpoint = "http://api.bioinfo.no/services/EchoService";
-var body = new XElement(ns.GetName("SayHi"));
-
-var messageHandler = new ContentTypeChangingHandler(new HttpClientHandler());
-Func<HttpClient> httpClientFactory = () => new HttpClient(messageHandler);
-
-using (var soapClient = new SoapClient(httpClientFactory))
+async Task CallEchoServiceAsync()
 {
-  var result = soapClient.Post(
-            endpoint: endpoint,
-            body: body);
-  Console.WriteLine(result.Content.ReadAsStringAsync().Result);
+	var ns = XNamespace.Get("http://www.bccs.uib.no/EchoService.wsdl");
+	var endpoint = new Uri("http://api.bioinfo.no/services/EchoService");
+	var body = new XElement(ns.GetName("SayHi"));
+
+	var messageHandler = new ContentTypeChangingHandler(new HttpClientHandler());
+	Func<HttpClient> httpClientFactory = () => new HttpClient(messageHandler);
+
+	using (var soapClient = new SoapClient(httpClientFactory))
+	{
+		var result = 
+          await soapClient.PostAsync(
+          		endpoint: endpoint,
+          		soapVersion: SoapVersion.Soap11,
+          		body: body);
+					
+		Console.WriteLine(await result.Content.ReadAsStringAsync());
+	}
 }
 ```
 
@@ -170,22 +174,25 @@ using (var soapClient = new SoapClient(httpClientFactory))
 </soapenv:Envelope>
 ```
 
-### Parameters
+### Call NASA
 
 ```csharp
-void Main()
+async Task CallNasaAsync()
 {
-  var ns = XNamespace.Get("http://helio.spdf.gsfc.nasa.gov/");
-  var endpoint = "http://sscweb.gsfc.nasa.gov:80/WS/helio/1/HeliocentricTrajectoriesService";
-  var body = new XElement(ns.GetName("getAllObjects"));
+	var ns = XNamespace.Get("http://helio.spdf.gsfc.nasa.gov/");
+	var endpoint = new Uri("http://sscweb.gsfc.nasa.gov:80/WS/helio/1/HeliocentricTrajectoriesService");
+	var body = new XElement(ns.GetName("getAllObjects"));
 
-  using (var soapClient = new SoapClient()) {
-    var result = soapClient.Post(
-          endpoint: endpoint,
-          body: body,
-          mediaType: "text/xml");
-    Console.WriteLine(result.Content.ReadAsStringAsync().Result);
-  }
+	using (var soapClient = new SoapClient())
+	{
+		var result = 
+          await soapClient.PostAsync(
+          		endpoint: endpoint,
+          		soapVersion: SoapVersion.Soap11,
+          		body: body);
+
+		Console.WriteLine(await result.Content.ReadAsStringAsync());
+	}
 }
 ```
 
