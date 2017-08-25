@@ -6,20 +6,20 @@
     <AssemblyTitle>SoapHttpClient</AssemblyTitle>
     <VersionPrefix>2.1.0</VersionPrefix>
     <Authors>Pablo Morelli</Authors>
-    <TargetFrameworks>net45;netstandard2.0</TargetFrameworks>
+    <TargetFramework>netstandard2.0</TargetFramework>
     <AssemblyName>SoapHttpClient</AssemblyName>
     <PackageId>SoapHttpClient</PackageId>
     <PackageTags>soap;async;http;client;httpclient</PackageTags>
     <PackageReleaseNotes>
+		- 2.1.0
+		-- Updated to NetStandardLibrary 2.0
+		-- Fixed a bug where an extension method was calling himself recursively
 		- 2.0.0
 		-- Major refactor to the codebase.
 		-- Added the functionality of adding more than one header and/or body in the envelope.
 		-- The ctor will no longer determine the SoapVersion, since it is a message property and the API should be ignorant about this.
 		-- BREAKING CHANGE: SoapVersion is now required for every message.
 		-- BREAKING CHANGE: Removed methods where the endpoint was a string instead of an uri.
-		- 2.1.0
-		-- Updated to NetStandardLibrary 2.0
-		-- Fixed a bug where an extension method was calling himself recursively
 	</PackageReleaseNotes>
     <PackageIconUrl>https://github.com/pmorelli92/SoapHttpClient/blob/master/assets/icon.png</PackageIconUrl>
     <PackageProjectUrl>https://github.com/pmorelli92/SoapHttpClient</PackageProjectUrl>
@@ -28,18 +28,5 @@
     <RepositoryUrl>https://github.com/pmorelli92/SoapClient.git</RepositoryUrl>
     <NetStandardImplicitPackageVersion Condition=" '$(TargetFramework)' == 'netstandard2.0' ">2.0</NetStandardImplicitPackageVersion>
   </PropertyGroup>
-
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net45' ">
-    <Reference Include="System.Xml" />
-    <Reference Include="System.Net.Http" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Xml.Serialization" />
-    <Reference Include="System" />
-    <Reference Include="Microsoft.CSharp" />
-  </ItemGroup>
-
-  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
-    <PackageReference Include="System.Xml.XmlSerializer" Version="4.3.0" />
-  </ItemGroup>
 
 </Project>
