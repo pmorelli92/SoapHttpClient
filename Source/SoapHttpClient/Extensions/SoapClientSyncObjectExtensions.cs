@@ -3,8 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
-using System.Text;
-using System.Threading.Tasks;
 using System.Xml.Linq;
 
 namespace SoapHttpClient.Extensions
@@ -95,7 +93,6 @@ namespace SoapHttpClient.Extensions
                 xElementSerializer.Serialize(body),
                 headers.Select(e => xElementSerializer.Serialize(e)),
                 action);
-
         }
     }
 }

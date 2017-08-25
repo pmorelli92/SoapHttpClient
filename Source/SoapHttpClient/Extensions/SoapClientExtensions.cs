@@ -5,7 +5,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 
-namespace SoapHttpClient
+namespace SoapHttpClient.Extensions
 {
     public static class SoapClientExtensions
     {
@@ -76,7 +76,7 @@ namespace SoapHttpClient
             return client.PostAsync(
                 endpoint,
                 soapVersion,
-                body,
+                new[] { body },
                 headers,
                 action);
         }
