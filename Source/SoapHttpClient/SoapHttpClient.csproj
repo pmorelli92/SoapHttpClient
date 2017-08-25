@@ -4,25 +4,29 @@
     <Description>HttpClient wrapper for sending SOAP messages.</Description>
     <Copyright>Copyright 2017, Pablo Morelli</Copyright>
     <AssemblyTitle>SoapHttpClient</AssemblyTitle>
-    <VersionPrefix>2.0.0</VersionPrefix>
+    <VersionPrefix>2.1.0</VersionPrefix>
     <Authors>Pablo Morelli</Authors>
-    <TargetFrameworks>net45;netstandard1.6</TargetFrameworks>
+    <TargetFrameworks>net45;netstandard2.0</TargetFrameworks>
     <AssemblyName>SoapHttpClient</AssemblyName>
     <PackageId>SoapHttpClient</PackageId>
     <PackageTags>soap;async;http;client;httpclient</PackageTags>
     <PackageReleaseNotes>
-		- Major refactor to the codebase.
-		- Added the functionality of adding more than one header and/or body in the envelope.
-		- The ctor will no longer determine the SoapVersion, since it is a message property and the API should be ignorant about this.
-		- BREAKING CHANGE: SoapVersion is now required for every message.
-		- BREAKING CHANGE: Removed methods where the endpoint was a string instead of an uri.
+		- 2.0.0
+		-- Major refactor to the codebase.
+		-- Added the functionality of adding more than one header and/or body in the envelope.
+		-- The ctor will no longer determine the SoapVersion, since it is a message property and the API should be ignorant about this.
+		-- BREAKING CHANGE: SoapVersion is now required for every message.
+		-- BREAKING CHANGE: Removed methods where the endpoint was a string instead of an uri.
+		- 2.1.0
+		-- Updated to NetStandardLibrary 2.0
+		-- Fixed a bug where an extension method was calling himself recursively
 	</PackageReleaseNotes>
     <PackageIconUrl>https://github.com/pmorelli92/SoapHttpClient/blob/master/assets/icon.png</PackageIconUrl>
     <PackageProjectUrl>https://github.com/pmorelli92/SoapHttpClient</PackageProjectUrl>
     <PackageLicenseUrl>https://raw.githubusercontent.com/pmorelli92/SoapClient/master/LICENSE</PackageLicenseUrl>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/pmorelli92/SoapClient.git</RepositoryUrl>
-    <NetStandardImplicitPackageVersion Condition=" '$(TargetFramework)' == 'netstandard1.6' ">1.6.1</NetStandardImplicitPackageVersion>
+    <NetStandardImplicitPackageVersion Condition=" '$(TargetFramework)' == 'netstandard2.0' ">2.0</NetStandardImplicitPackageVersion>
   </PropertyGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net45' ">
@@ -34,7 +38,7 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
 
-  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.6' ">
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
     <PackageReference Include="System.Xml.XmlSerializer" Version="4.3.0" />
   </ItemGroup>
 
