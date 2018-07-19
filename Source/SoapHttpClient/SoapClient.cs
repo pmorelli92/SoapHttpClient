@@ -69,11 +69,15 @@ namespace SoapHttpClient
             var content = new StringContent(envelope.ToString(), Encoding.UTF8, messageConfiguration.MediaType);
 
             // Add SOAP action if any
-            if (action != null && messageConfiguration.SoapVersion == SoapVersion.Soap11)
-                content.Headers.Add("ActionHeader", action);
-            else if (action != null && messageConfiguration.SoapVersion == SoapVersion.Soap12)
-                content.Headers.ContentType.Parameters.Add(new NameValueHeaderValue("ActionParameter", $"\"{action}\""));
+            if (action != null)
+            {
+                content.Headers.Add("SOAPAction", action);
 
+                if (messageConfiguration.SoapVersion == SoapVersion.Soap12)
+                    content.Headers.ContentType.Parameters.Add(
+                        new NameValueHeaderValue("ActionParameter", $"\"{action}\""));
+            }
+            
             // Execute call
             return _httpClient.PostAsync(endpoint, content);
         }

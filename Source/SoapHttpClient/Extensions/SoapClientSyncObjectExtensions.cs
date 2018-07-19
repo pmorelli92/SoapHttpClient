@@ -5,7 +5,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Xml.Linq;
 
-namespace SoapHttpClient.Extensions
+namespace SoapHttpClient
 {
     public static class SoapClientSyncObjectExtensions
     {

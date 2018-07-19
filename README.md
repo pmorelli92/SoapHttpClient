@@ -6,8 +6,16 @@
 
 ## Changelog
 
-### 2.0.0
+### 2.2.0
+- Updated codebase.
+- Migrated test project to .net core app.
+- Fixed an error of SOAPAction not being sent.
 
+### 2.1.0
+- Updated to NetStandardLibrary 2.0
+-  Fixed a bug where an extension method was calling himself recursively
+
+### 2.0.0
 - Major refactor to the codebase.
 - Added the functionality of adding more than one header and/or body in the envelope.
 - The ctor will no longer determine the SoapVersion, since it is a message property and the API should be ignorant about this.
@@ -135,64 +143,21 @@ public class ContentTypeChangingHandler : DelegatingHandler
 }
 ```
 
-### Echo Service
-
-```csharp
-async Task CallEchoServiceAsync()
-{
-	var ns = XNamespace.Get("http://www.bccs.uib.no/EchoService.wsdl");
-	var endpoint = new Uri("http://api.bioinfo.no/services/EchoService");
-	var body = new XElement(ns.GetName("SayHi"));
-
-	var messageHandler = new ContentTypeChangingHandler(new HttpClientHandler());
-	Func<HttpClient> httpClientFactory = () => new HttpClient(messageHandler);
-
-	using (var soapClient = new SoapClient(httpClientFactory))
-	{
-		var result = 
-          await soapClient.PostAsync(
-          		endpoint: endpoint,
-          		soapVersion: SoapVersion.Soap11,
-          		body: body);
-					
-		Console.WriteLine(await result.Content.ReadAsStringAsync());
-	}
-}
-```
-
-#### Result of Calling Echo Service
-
-```xml
-<?xml version="1.0" encoding="UTF-8"?>
-<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
-   <soapenv:Header />
-   <soapenv:Body>
-      <SayHiResponse xmlns="http://www.bccs.uib.no/EchoService.wsdl">
-         <HiResponse xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
-      </SayHiResponse>
-   </soapenv:Body>
-</soapenv:Envelope>
-```
-
 ### Call NASA
 
 ```csharp
 async Task CallNasaAsync()
 {
-	var ns = XNamespace.Get("http://helio.spdf.gsfc.nasa.gov/");
-	var endpoint = new Uri("http://sscweb.gsfc.nasa.gov:80/WS/helio/1/HeliocentricTrajectoriesService");
-	var body = new XElement(ns.GetName("getAllObjects"));
+    var soapClient = new SoapClient();
+    var ns = XNamespace.Get("http://helio.spdf.gsfc.nasa.gov/");
 
-	using (var soapClient = new SoapClient())
-	{
-		var result = 
-          await soapClient.PostAsync(
-          		endpoint: endpoint,
-          		soapVersion: SoapVersion.Soap11,
-          		body: body);
+    var result = 
+        await soapClient.PostAsync(
+            new Uri("http://sscweb.gsfc.nasa.gov:80/WS/helio/1/HeliocentricTrajectoriesService"),
+            SoapVersion.Soap11,
+            body: new XElement(ns.GetName("getAllObjects")));
 
-		Console.WriteLine(await result.Content.ReadAsStringAsync());
-	}
+    result.StatusCode.Should().Be(HttpStatusCode.OK);
 }
 ```
 

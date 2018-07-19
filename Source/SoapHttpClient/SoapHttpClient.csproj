@@ -11,8 +11,9 @@
     <PackageTags>soap;async;http;client;httpclient</PackageTags>
     <PackageReleaseNotes>
         - 2.2.0
-        -- Updated to NetStandardLibrary 2.0
-        -- Fixed a bug where an extension method was calling himself recursively
+        -- Updated codebase.
+        -- Migrated test project to .net core app
+        -- Fixed an error of SOAPAction not being sent.
 		- 2.1.0
 		-- Updated to NetStandardLibrary 2.0
 		-- Fixed a bug where an extension method was calling himself recursively
