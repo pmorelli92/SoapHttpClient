@@ -35,14 +35,7 @@ namespace SoapHttpClient
         public void Dispose()
             => _httpClient.Dispose();
 
-        /// <summary>
-        /// Posts an asynchronous message.
-        /// </summary>
-        /// <param name="endpoint">The endpoint.</param>
-        /// <param name="version">The preferred SOAP version.</param>
-        /// <param name="bodies">The body of the SOAP message.</param>
-        /// <param name="headers">The header of the SOAP message.</param>
-        /// <param name="action">The SOAPAction of the SOAP message.</param>
+        /// <inheritdoc />
         public Task<HttpResponseMessage> PostAsync(
             Uri endpoint, 
             SoapVersion soapVersion,
@@ -87,7 +80,7 @@ namespace SoapHttpClient
 
         #region Private Methods
 
-        private XElement GetEnvelope(SoapMessageConfiguration soapMessageConfiguration)
+        private static XElement GetEnvelope(SoapMessageConfiguration soapMessageConfiguration)
         {
             return new 
                 XElement(

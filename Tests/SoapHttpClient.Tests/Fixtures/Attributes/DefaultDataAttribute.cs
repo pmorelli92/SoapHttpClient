@@ -1,31 +1,35 @@
-﻿using Ploeh.AutoFixture;
-using Ploeh.AutoFixture.Xunit2;
-using SoapHttpClient.Fixtures.Customizations;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Linq;
-using System.Reflection;
+using AutoFixture;
+using AutoFixture.Xunit2;
+using SoapHttpClient.Tests.Fixtures.Customizations;
 
-namespace SoapHttpClient.Fixtures.Attributes
+namespace SoapHttpClient.Tests.Fixtures.Attributes
 {
     public class DefaultDataAttribute : AutoDataAttribute
     {
-        private ICustomization _defaultCustomization;
-        private Type[] _customizationTypes;
+        public DefaultDataAttribute()
+            : base(fixtureFactory: FixtureFactory(new Type[] { }))
+        { }
 
         public DefaultDataAttribute(params Type[] customizationTypes)
-        {
-            _defaultCustomization = new DefaultCustomization();
-            _customizationTypes = customizationTypes;
-        }
+            : base(fixtureFactory: FixtureFactory(customizationTypes ?? new Type[] { }))
+        { }
 
-        public override IEnumerable<object[]> GetData(MethodInfo methodUnderTest)
+        private static Func<IFixture> FixtureFactory(Type[] customizationTypes)
         {
-            this.Fixture.Customize(new CompositeCustomization(
-                    new ICustomization[] { _defaultCustomization }
-                        .Concat(_customizationTypes.Select(t => (ICustomization)Activator.CreateInstance(t, null)))));
+            return () =>
+            {
+                var fixture = new Fixture();
+                fixture.Customize(new CompositeCustomization(
+                    new ICustomization[] { new DefaultCustomization() }
+                        .Concat(customizationTypes.Select(t => (ICustomization)Activator.CreateInstance(t, null)))));
+                fixture.Behaviors.OfType<ThrowingRecursionBehavior>().ToList()
+                    .ForEach(b => fixture.Behaviors.Remove(b));
+                fixture.Behaviors.Add(new OmitOnRecursionBehavior());
 
-            return base.GetData(methodUnderTest);
+                return fixture;
+            };
         }
     }
 }

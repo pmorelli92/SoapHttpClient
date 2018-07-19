@@ -4,7 +4,7 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace SoapHttpClient.Fixtures
+namespace SoapHttpClient.Tests.Fixtures
 {
     public class TestMessageHandler : HttpMessageHandler
     {
@@ -13,7 +13,7 @@ namespace SoapHttpClient.Fixtures
         public TestMessageHandler()
             => CallStack = new List<TestCall>();
 
-        protected async override Task<HttpResponseMessage> SendAsync(
+        protected override async Task<HttpResponseMessage> SendAsync(
             HttpRequestMessage request,
             CancellationToken cancellationToken)
         {

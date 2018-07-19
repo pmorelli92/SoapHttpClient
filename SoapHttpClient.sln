@@ -1,12 +1,8 @@
-Microsoft Visual Studio Solution File, Format Version 12.00
+﻿Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.26430.12
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoapHttpClient", "Source\SoapHttpClient\SoapHttpClient.csproj", "{F04EB5E0-16BE-4485-935A-77B5CAF4080E}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{AAFFAF89-5391-4C5B-B245-90B4C9946A2A}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoapHttpClient.Tests", "Tests\SoapHttpClient.Tests\SoapHttpClient.Tests.csproj", "{DB4B9A0A-3F47-48A8-95FE-8477047D2345}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{4D8231AD-5E92-49CC-AC58-C441D74C7670}"
 	ProjectSection(SolutionItems) = preProject
@@ -15,26 +11,21 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		README.md = README.md
 	EndProjectSection
 EndProject
-
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoapHttpClient.Tests", "Tests\SoapHttpClient.Tests\SoapHttpClient.Tests.csproj", "{BAFDAD8A-BADB-4CDB-926E-A141B092CBA3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoapHttpClient", "Source\SoapHttpClient\SoapHttpClient.csproj", "{AF218B52-C837-4C40-B54C-B6F38CFE3EA8}"
+EndProject
 Global
-	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		Debug|Any CPU = Debug|Any CPU
-		Release|Any CPU = Release|Any CPU
+	GlobalSection(NestedProjects) = preSolution
+		{BAFDAD8A-BADB-4CDB-926E-A141B092CBA3} = {AAFFAF89-5391-4C5B-B245-90B4C9946A2A}
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{F04EB5E0-16BE-4485-935A-77B5CAF4080E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F04EB5E0-16BE-4485-935A-77B5CAF4080E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F04EB5E0-16BE-4485-935A-77B5CAF4080E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F04EB5E0-16BE-4485-935A-77B5CAF4080E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{DB4B9A0A-3F47-48A8-95FE-8477047D2345}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{DB4B9A0A-3F47-48A8-95FE-8477047D2345}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{DB4B9A0A-3F47-48A8-95FE-8477047D2345}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{DB4B9A0A-3F47-48A8-95FE-8477047D2345}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AF218B52-C837-4C40-B54C-B6F38CFE3EA8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AF218B52-C837-4C40-B54C-B6F38CFE3EA8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BAFDAD8A-BADB-4CDB-926E-A141B092CBA3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BAFDAD8A-BADB-4CDB-926E-A141B092CBA3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 	EndGlobalSection
-	GlobalSection(SolutionProperties) = preSolution
-		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(NestedProjects) = preSolution
-		{DB4B9A0A-3F47-48A8-95FE-8477047D2345} = {AAFFAF89-5391-4C5B-B245-90B4C9946A2A}
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
 	EndGlobalSection
 EndGlobal

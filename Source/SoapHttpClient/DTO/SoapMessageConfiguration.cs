@@ -5,11 +5,11 @@ namespace SoapHttpClient.DTO
 {
     public class SoapMessageConfiguration
     {
-        public string MediaType { get; private set; }
+        public string MediaType { get; }
 
-        public XNamespace Schema { get; private set; }
+        public XNamespace Schema { get; }
 
-        public SoapVersion SoapVersion { get; private set; }
+        public SoapVersion SoapVersion { get; }
 
         public SoapMessageConfiguration(SoapVersion soapVersion)
         {

@@ -1,16 +1,18 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <Description>HttpClient wrapper for sending SOAP messages.</Description>
-    <Copyright>Copyright 2017, Pablo Morelli</Copyright>
+    <Copyright>Copyright 2018, Pablo Morelli</Copyright>
     <AssemblyTitle>SoapHttpClient</AssemblyTitle>
-    <VersionPrefix>2.1.0</VersionPrefix>
+    <VersionPrefix>2.2.0</VersionPrefix>
     <Authors>Pablo Morelli</Authors>
     <TargetFramework>netstandard2.0</TargetFramework>
     <AssemblyName>SoapHttpClient</AssemblyName>
     <PackageId>SoapHttpClient</PackageId>
     <PackageTags>soap;async;http;client;httpclient</PackageTags>
     <PackageReleaseNotes>
+        - 2.2.0
+        -- Updated to NetStandardLibrary 2.0
+        -- Fixed a bug where an extension method was calling himself recursively
 		- 2.1.0
 		-- Updated to NetStandardLibrary 2.0
 		-- Fixed a bug where an extension method was calling himself recursively
@@ -26,7 +28,5 @@
     <PackageLicenseUrl>https://raw.githubusercontent.com/pmorelli92/SoapClient/master/LICENSE</PackageLicenseUrl>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/pmorelli92/SoapClient.git</RepositoryUrl>
-    <NetStandardImplicitPackageVersion Condition=" '$(TargetFramework)' == 'netstandard2.0' ">2.0</NetStandardImplicitPackageVersion>
   </PropertyGroup>
-
 </Project>

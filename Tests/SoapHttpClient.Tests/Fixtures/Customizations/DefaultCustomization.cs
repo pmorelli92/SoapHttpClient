@@ -1,14 +1,11 @@
-﻿using Ploeh.AutoFixture;
-using Ploeh.AutoFixture.AutoMoq;
+﻿using AutoFixture;
 
-namespace SoapHttpClient.Fixtures.Customizations
+namespace SoapHttpClient.Tests.Fixtures.Customizations
 {
     public class DefaultCustomization : CompositeCustomization
     {
         public DefaultCustomization()
-            : base(
-                new MultipleCustomization(),
-                new AutoMoqCustomization())
+            : base()
         { }
     }
 }

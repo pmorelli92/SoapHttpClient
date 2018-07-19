@@ -14,6 +14,7 @@ namespace SoapHttpClient.Extensions
         /// </summary>
         /// <param name="client">Instance of SoapClient.</param>
         /// <param name="endpoint">The endpoint.</param>
+        /// <param name="soapVersion">The version of SOAP</param>
         /// <param name="body">The body of the SOAP message.</param>
         /// <param name="header">The header of the SOAP message.</param>
         /// <param name="action"></param>
@@ -29,9 +30,7 @@ namespace SoapHttpClient.Extensions
             if (xElementSerializer == null)
                 xElementSerializer = new XElementSerializer();
 
-            return SoapClientSyncExtensions.Post(
-                client,
-                endpoint,
+            return client.Post(endpoint,
                 soapVersion,
                 xElementSerializer.Serialize(body),
                 header != null ? new[] { xElementSerializer.Serialize(header) } : default(IEnumerable<XElement>));
@@ -42,7 +41,8 @@ namespace SoapHttpClient.Extensions
         /// </summary>
         /// <param name="client">Instance of SoapClient.</param>
         /// <param name="endpoint">The endpoint.</param>
-        /// <param name="body">The body of the SOAP message.</param>
+        /// <param name="soapVersion">The version of SOAP</param>
+        /// <param name="bodies">The body of the SOAP message.</param>
         /// <param name="header">The header of the SOAP message.</param>
         /// <param name="action"></param>
         public static HttpResponseMessage Post(
@@ -57,9 +57,7 @@ namespace SoapHttpClient.Extensions
             if (xElementSerializer == null)
                 xElementSerializer = new XElementSerializer();
 
-            return SoapClientSyncExtensions.Post(
-                client,
-                endpoint,
+            return client.Post(endpoint,
                 soapVersion,
                 bodies.Select(e => xElementSerializer.Serialize(e)),
                 header != null ? xElementSerializer.Serialize(header) : default(XElement),
@@ -71,8 +69,9 @@ namespace SoapHttpClient.Extensions
         /// </summary>
         /// <param name="client">Instance of SoapClient.</param>
         /// <param name="endpoint">The endpoint.</param>
+        /// <param name="soapVersion">The version of SOAP</param>
         /// <param name="body">The body of the SOAP message.</param>
-        /// <param name="header">The header of the SOAP message.</param>
+        /// <param name="headers">The headers of the SOAP message.</param>
         /// <param name="action"></param>
         public static HttpResponseMessage Post(
             this ISoapClient client,
@@ -86,9 +85,7 @@ namespace SoapHttpClient.Extensions
             if (xElementSerializer == null)
                 xElementSerializer = new XElementSerializer();
 
-            return SoapClientSyncExtensions.Post(
-                client,
-                endpoint,
+            return client.Post(endpoint,
                 soapVersion,
                 xElementSerializer.Serialize(body),
                 headers.Select(e => xElementSerializer.Serialize(e)),

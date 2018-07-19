@@ -1,8 +1,9 @@
-﻿using Ploeh.AutoFixture;
-using Ploeh.AutoFixture.Xunit2;
-using System;
+﻿using System;
 using System.Linq;
-namespace SoapHttpClient.Fixtures.Attributes
+using AutoFixture;
+using AutoFixture.Xunit2;
+
+namespace SoapHttpClient.Tests.Fixtures.Attributes
 {
     public class InlineDefaultDataAttribute : InlineAutoDataAttribute
     {
@@ -11,7 +12,7 @@ namespace SoapHttpClient.Fixtures.Attributes
             : base(
                 new DefaultDataAttribute(
                     valuesAndCustomizationTypes
-                        .Where(ct => IsCustomizationType(ct))
+                        .Where(IsCustomizationType)
                         .Cast<Type>()
                         .ToArray()),
                 values: valuesAndCustomizationTypes.Where(x => !IsCustomizationType(x)).ToArray())

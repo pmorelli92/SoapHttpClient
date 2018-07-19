@@ -1,19 +1,19 @@
-﻿using FluentAssertions;
-using SoapHttpClient.Enums;
-using SoapHttpClient.Fixtures.Attributes;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http;
-using System.Xml.Linq;
-using Xunit;
 using System.Net;
+using System.Net.Http;
 using System.Net.Http.Headers;
-using SoapHttpClient.Fixtures;
-using Ploeh.AutoFixture;
-using Ploeh.AutoFixture.Kernel;
+using System.Xml.Linq;
+using AutoFixture;
+using AutoFixture.Kernel;
+using FluentAssertions;
+using SoapHttpClient.Enums;
+using SoapHttpClient.Tests.Fixtures;
+using SoapHttpClient.Tests.Fixtures.Attributes;
+using Xunit;
 
-namespace SoapHttpClient
+namespace SoapHttpClient.Tests
 {
     public class SoapClientTests
     {
@@ -81,7 +81,7 @@ namespace SoapHttpClient
 
         #endregion Customizations
 
-        [Theory]
+        [Theory(DisplayName = "SoapClient should be assignable to the interface")]
         [DefaultData]
         public void Sut_ShouldBeAssignableTo_ISoapClient(SoapClient sut)
         {
@@ -89,7 +89,7 @@ namespace SoapHttpClient
             sut.Should().BeAssignableTo<ISoapClient>();
         }
 
-        [Theory]
+        [Theory(DisplayName = "Post should do expected HTTP call")]
         [InlineDefaultData(typeof(ActionIsNullCustomization))]
         [InlineDefaultData(typeof(SoapVersion12Customization))]
         [InlineDefaultData(typeof(HeadersAreNullCustomization))]
@@ -99,8 +99,8 @@ namespace SoapHttpClient
             Uri endpoint,
             string action,
             SoapVersion soapVersion,
-            IEnumerable<XElement> bodies,
-            IEnumerable<XElement> headers)
+            List<XElement> bodies,
+            List<XElement> headers)
         {
             // Setup
             // -- We use TestMessageHandler in order to check what call does the inner HttpClient made
@@ -125,7 +125,7 @@ namespace SoapHttpClient
 
         #region Private Methods
 
-        private void AssertActualHeaders(HttpContentHeaders headers, SoapVersion soapVersion, string action)
+        private static void AssertActualHeaders(HttpContentHeaders headers, SoapVersion soapVersion, string action)
         {
             if (headers.Contains("ActionHeader"))
             {
@@ -140,7 +140,11 @@ namespace SoapHttpClient
             }
         }
 
-        private void AssertRequestBody(SoapVersion soapVersion, string body, IEnumerable<XElement> bodies, IEnumerable<XElement> headers)
+        private static void AssertRequestBody(
+            SoapVersion soapVersion,
+            string body,
+            IEnumerable<XElement> bodies,
+            IReadOnlyCollection<XElement> headers)
         {
             // Get Namespaces
             var expectedNameSpace =
@@ -155,6 +159,7 @@ namespace SoapHttpClient
             actualEnvelope.Name.Namespace.NamespaceName.Should().Be(expectedNameSpace);
             
             // Assert Headers
+            
             if (headers != null && headers.Any())
             {
                 var actualHeader =
@@ -169,7 +174,7 @@ namespace SoapHttpClient
                 // And Should().BeEquivalentTo(...) compares by object graph and generates a memory degration
                 // we will compare the elements using the .ToString() serialization of the XML
                 actualHeader.Elements().Select(e => e.ToString())
-                    .ShouldAllBeEquivalentTo(headers.Select(e => e.ToString()));
+                    .Should().BeEquivalentTo(headers.Select(e => e.ToString()));
             }
 
             // Assert Bodies
@@ -185,7 +190,7 @@ namespace SoapHttpClient
             // And Should().BeEquivalentTo(...) compares by object graph and generates a memory degration
             // we will compare the elements using the .ToString() serialization of the XML
             actualBody.Elements().Select(e => e.ToString())
-                .ShouldAllBeEquivalentTo(bodies.Select(e => e.ToString()));
+                .Should().BeEquivalentTo(bodies.Select(e => e.ToString()));
         }
 
         #endregion Private Methods

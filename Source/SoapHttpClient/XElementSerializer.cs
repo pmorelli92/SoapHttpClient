@@ -5,10 +5,7 @@ namespace SoapHttpClient
 {
     public class XElementSerializer : IXElementSerializer
     {
-        /// <summary>
-        /// Serializes the specified object to XElement
-        /// </summary>
-        /// <param name="obj">The object to serialize.</param>
+        /// <inheritdoc />
         public XElement Serialize(object obj)
         {
             var xs = new XmlSerializer(obj.GetType());
