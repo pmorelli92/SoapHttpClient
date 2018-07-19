@@ -3,6 +3,7 @@
     <Description>HttpClient wrapper for sending SOAP messages.</Description>
     <Copyright>Copyright 2018, Pablo Morelli</Copyright>
     <AssemblyTitle>SoapHttpClient</AssemblyTitle>
+    <Title>SoapHttpClient</Title>
     <VersionPrefix>2.2.0</VersionPrefix>
     <Authors>Pablo Morelli</Authors>
     <TargetFramework>netstandard2.0</TargetFramework>
@@ -24,7 +25,7 @@
 		-- BREAKING CHANGE: SoapVersion is now required for every message.
 		-- BREAKING CHANGE: Removed methods where the endpoint was a string instead of an uri.
 	</PackageReleaseNotes>
-    <PackageIconUrl>https://github.com/pmorelli92/SoapHttpClient/blob/master/assets/icon.png</PackageIconUrl>
+    <PackageIconUrl>https://github.com/pmorelli92/SoapHttpClient/raw/master/assets/icon.png</PackageIconUrl>
     <PackageProjectUrl>https://github.com/pmorelli92/SoapHttpClient</PackageProjectUrl>
     <PackageLicenseUrl>https://raw.githubusercontent.com/pmorelli92/SoapClient/master/LICENSE</PackageLicenseUrl>
     <RepositoryType>git</RepositoryType>
