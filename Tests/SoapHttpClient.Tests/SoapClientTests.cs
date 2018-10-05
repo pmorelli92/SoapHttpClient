@@ -150,7 +150,7 @@ namespace SoapHttpClient.Tests
             var task = sut.PostAsync(endpoint, soapVersion, bodies, headers, action, token);
 
             // Verify outcome
-            // -- Assert that we only made one call
+            // -- Assert that cancellation has been requested. 
             tokenSource.Cancel(true);
             Task.WaitAll(task);
             Assert.True(token.IsCancellationRequested);

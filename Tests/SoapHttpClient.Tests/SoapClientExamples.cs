@@ -44,7 +44,6 @@ namespace SoapHttpClient.Tests
 
             tokenSource.Cancel(true);
             Task.WaitAll(task);
-            //result.StatusCode.Should().Be(HttpStatusCode.OK);
         }
     }
 }
