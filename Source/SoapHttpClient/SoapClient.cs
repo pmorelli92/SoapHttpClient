@@ -5,6 +5,7 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using SoapHttpClient.Enums;
@@ -41,7 +42,8 @@ namespace SoapHttpClient
             SoapVersion soapVersion,
             IEnumerable<XElement> bodies,
             IEnumerable<XElement> headers = null,
-            string action = null)
+            string action = null,
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             if (endpoint == null)
                 throw new ArgumentNullException(nameof(endpoint));
@@ -79,7 +81,7 @@ namespace SoapHttpClient
             }
             
             // Execute call
-            return _httpClient.PostAsync(endpoint, content);
+            return _httpClient.PostAsync(endpoint, content, cancellationToken);
         }
 
         #region Private Methods

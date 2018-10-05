@@ -4,6 +4,8 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Xml.Linq;
 using AutoFixture;
 using AutoFixture.Kernel;
@@ -121,6 +123,38 @@ namespace SoapHttpClient.Tests
             AssertActualHeaders(actualCall.Headers, soapVersion, action);
             // -- Assert the request body
             AssertRequestBody(soapVersion, actualCall.Body, bodies, headers);
+        }
+
+        [Theory(DisplayName = "Post should cancel HTTP call")]
+        [InlineDefaultData(typeof(ActionIsNullCustomization))]
+        [InlineDefaultData(typeof(SoapVersion12Customization))]
+        [InlineDefaultData(typeof(HeadersAreNullCustomization))]
+        [InlineDefaultData(typeof(HeadersAreEmptyCustomization))]
+        [InlineDefaultData(typeof(OnlyOneHeaderAndOneBodyCustomization))]
+        public void PostAsync_ShouldCancelExpectedHttpCall(
+            Uri endpoint,
+            string action,
+            SoapVersion soapVersion,
+            List<XElement> bodies,
+            List<XElement> headers)
+        {
+            // Setup
+            // -- We use TestMessageHandler in order to check what call does the inner HttpClient made
+            var tokenSource = new CancellationTokenSource();
+            var token = tokenSource.Token;
+            var testMessageHandler = new TestMessageHandler();
+            var httpClient = new HttpClient(testMessageHandler);
+            var sut = new SoapClient(() => httpClient);
+
+            // Exercise
+            var task = sut.PostAsync(endpoint, soapVersion, bodies, headers, action, token);
+
+            // Verify outcome
+            // -- Assert that we only made one call
+            tokenSource.Cancel(true);
+            Task.WaitAll(task);
+            Assert.True(token.IsCancellationRequested);
+            Console.WriteLine(task.Result);
         }
 
         #region Private Methods

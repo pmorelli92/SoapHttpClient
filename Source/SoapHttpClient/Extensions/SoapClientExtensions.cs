@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 
@@ -24,14 +25,16 @@ namespace SoapHttpClient
             SoapVersion soapVersion,
             XElement body,
             XElement header = null,
-            string action = null)
+            string action = null,
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             return client.PostAsync(
                 endpoint,
                 soapVersion,
                 new[] { body },
                 header != null ? new[] { header } : default(IEnumerable<XElement>),
-                action);
+                action,
+                cancellationToken);
         }
 
         /// <summary>
@@ -49,14 +52,16 @@ namespace SoapHttpClient
             SoapVersion soapVersion,
             IEnumerable<XElement> bodies,
             XElement header,
-            string action = null)
+            string action = null,
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             return client.PostAsync(
                 endpoint,
                 soapVersion,
                 bodies,
                 header != null ? new[] { header } : default(IEnumerable<XElement>),
-                action);
+                action,
+                cancellationToken);
         }
 
         /// <summary>
@@ -74,14 +79,16 @@ namespace SoapHttpClient
             SoapVersion soapVersion,
             XElement body,
             IEnumerable<XElement> headers,
-            string action = null)
+            string action = null,
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             return client.PostAsync(
                 endpoint,
                 soapVersion,
                 new[] { body },
                 headers,
-                action);
+                action,
+                cancellationToken);
         }
     }
 }
