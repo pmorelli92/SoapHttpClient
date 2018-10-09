@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 
@@ -26,7 +27,8 @@ namespace SoapHttpClient
             object body,
             object header = null,
             IXElementSerializer xElementSerializer = null,
-            string action = null)
+            string action = null,
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             if (xElementSerializer == null)
                 xElementSerializer = new XElementSerializer();
@@ -35,7 +37,8 @@ namespace SoapHttpClient
                 soapVersion,
                 xElementSerializer.Serialize(body),
                 header != null ? new[] { xElementSerializer.Serialize(header) } : default(IEnumerable<XElement>),
-                action);
+                action,
+                cancellationToken);
         }
 
         /// <summary>
@@ -54,7 +57,8 @@ namespace SoapHttpClient
             IEnumerable<object> bodies,
             object header,
             IXElementSerializer xElementSerializer = null,
-            string action = null)
+            string action = null,
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             if (xElementSerializer == null)
                 xElementSerializer = new XElementSerializer();
@@ -63,7 +67,8 @@ namespace SoapHttpClient
                 soapVersion,
                 bodies.Select(e => xElementSerializer.Serialize(e)),
                 header != null ? xElementSerializer.Serialize(header) : default(XElement),
-                action);
+                action,
+                cancellationToken);
         }
 
         /// <summary>
@@ -82,7 +87,8 @@ namespace SoapHttpClient
             object body,
             IEnumerable<object> headers,
             IXElementSerializer xElementSerializer = null,
-            string action = null)
+            string action = null,
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             if (xElementSerializer == null)
                 xElementSerializer = new XElementSerializer();
@@ -91,7 +97,8 @@ namespace SoapHttpClient
                 soapVersion,
                 xElementSerializer.Serialize(body),
                 headers.Select(e => xElementSerializer.Serialize(e)),
-                action);
+                action,
+                cancellationToken);
         }
     }
 }
