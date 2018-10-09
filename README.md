@@ -6,6 +6,9 @@
 
 ## Changelog
 
+### 2.2.1
+- Added support for Cancellation Tokens.
+
 ### 2.2.0
 - Updated codebase.
 - Migrated test project to .net core app.
@@ -55,7 +58,8 @@ Task<HttpResponseMessage> PostAsync(
 	SoapVersion soapVersion, 
 	IEnumerable<XElement> bodies, 
 	IEnumerable<XElement> headers = null, 
-	string action = null);
+	string action = null,
+	CancellationToken cancellationToken = CancellationToken.Default);
 ```
 
 Allowing us to send the following calls:
@@ -75,7 +79,8 @@ Task<HttpResponseMessage> PostAsync(
 	SoapVersion soapVersion,
 	XElement body,
 	XElement header = null,
-	string action = null);
+	string action = null,
+	CancellationToken cancellationToken = CancellationToken.Default);
 			
 Task<HttpResponseMessage> PostAsync(
 	this ISoapClient client,
@@ -83,7 +88,8 @@ Task<HttpResponseMessage> PostAsync(
 	SoapVersion soapVersion,
 	IEnumerable<XElement> bodies,
 	XElement header,
-	string action = null);
+	string action = null,
+	CancellationToken cancellationToken = CancellationToken.Default);
 			
 Task<HttpResponseMessage> PostAsync(
 	this ISoapClient client,
@@ -91,7 +97,8 @@ Task<HttpResponseMessage> PostAsync(
 	SoapVersion soapVersion,
 	XElement body,
 	IEnumerable<XElement> headers,
-	string action = null);
+	string action = null,
+	CancellationToken cancellationToken = CancellationToken.Default);
 ```
 
 Allowing us to send the following calls:
