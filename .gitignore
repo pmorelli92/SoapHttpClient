@@ -249,3 +249,7 @@ paket-files/
 # JetBrains Rider
 .idea/
 *.sln.iml
+
+Source/SoapHttpClient/\.DS_Store
+
+Source/\.DS_Store
