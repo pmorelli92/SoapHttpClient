@@ -45,62 +45,12 @@ namespace SoapHttpClient
             string action = null,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            if (endpoint == null)
-                throw new ArgumentNullException(nameof(endpoint));
-
-            if (bodies == null)
-                throw new ArgumentNullException(nameof(bodies));
-
-            if (!bodies.Any())
-                throw new ArgumentException("Bodies element cannot be empty", nameof(bodies));
-
-            // Get configuration based on version
-            var messageConfiguration = new SoapMessageConfiguration(soapVersion);
-
-            // Get the envelope
-            var envelope = GetEnvelope(messageConfiguration);
-
-            // Add headers
-            if (headers != null && headers.Any())
-                envelope.Add(new XElement(messageConfiguration.Schema + "Header", headers));
-
-            // Add bodies
-            envelope.Add(new XElement(messageConfiguration.Schema + "Body", bodies));
-
-            // Get HTTP content
-            var content = new StringContent(envelope.ToString(), Encoding.UTF8, messageConfiguration.MediaType);
-
-            // Add SOAP action if any
-            if (action != null)
-            {
-                content.Headers.Add("SOAPAction", action);
-
-                if (messageConfiguration.SoapVersion == SoapVersion.Soap12)
-                    content.Headers.ContentType.Parameters.Add(
-                        new NameValueHeaderValue("ActionParameter", $"\"{action}\""));
-            }
-            
-            // Execute call
-            return _httpClient.PostAsync(endpoint, content, cancellationToken);
-        }
-
-        #region Private Methods
-
-        private static XElement GetEnvelope(SoapMessageConfiguration soapMessageConfiguration)
-        {
-            return new 
-                XElement(
-                    soapMessageConfiguration.Schema + "Envelope",
-                    new XAttribute(
-                        XNamespace.Xmlns + "soapenv",
-                        soapMessageConfiguration.Schema.NamespaceName));
+            return _httpClient.PostSoapAsync(endpoint, soapVersion, bodies, headers, action, cancellationToken);
         }
 
         private static HttpClient DefaultHttpFactory()
             => new HttpClient(new HttpClientHandler {
                 AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate,
             }, disposeHandler: false);
-
-        #endregion Private Methods
     }
 }
