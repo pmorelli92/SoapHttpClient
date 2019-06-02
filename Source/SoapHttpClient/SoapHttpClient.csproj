@@ -4,19 +4,21 @@
     <Copyright>Copyright 2019, Pablo Morelli</Copyright>
     <AssemblyTitle>SoapHttpClient</AssemblyTitle>
     <Title>SoapHttpClient</Title>
-    <VersionPrefix>2.2.1</VersionPrefix>
+    <VersionPrefix>3.0.0</VersionPrefix>
     <Authors>Pablo Morelli</Authors>
     <TargetFramework>netstandard2.0</TargetFramework>
     <AssemblyName>SoapHttpClient</AssemblyName>
     <PackageId>SoapHttpClient</PackageId>
     <PackageTags>soap;async;http;client;httpclient</PackageTags>
     <PackageReleaseNotes>
-        - 2.2.1
-        -- Added support for Cancellation Tokens.
-        - 2.2.0
-        -- Updated codebase.
-        -- Migrated test project to .net core app
-        -- Fixed an error of SOAPAction not being sent.
+    - 3.0.0
+    -- Replaced HttpClient with HttpClientFactory
+    - 2.2.1
+    -- Added support for Cancellation Tokens.
+    - 2.2.0
+    -- Updated codebase.
+    -- Migrated test project to .net core app
+    -- Fixed an error of SOAPAction not being sent.
 		- 2.1.0
 		-- Updated to NetStandardLibrary 2.0
 		-- Fixed a bug where an extension method was calling himself recursively
