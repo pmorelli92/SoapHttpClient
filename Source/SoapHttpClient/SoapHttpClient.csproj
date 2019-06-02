@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <Description>HttpClient wrapper for sending SOAP messages.</Description>
-    <Copyright>Copyright 2018, Pablo Morelli</Copyright>
+    <Copyright>Copyright 2019, Pablo Morelli</Copyright>
     <AssemblyTitle>SoapHttpClient</AssemblyTitle>
     <Title>SoapHttpClient</Title>
     <VersionPrefix>2.2.1</VersionPrefix>
@@ -33,4 +33,8 @@
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/pmorelli92/SoapClient.git</RepositoryUrl>
   </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="2.2.0" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="2.2.0" />
+  </ItemGroup>
 </Project>

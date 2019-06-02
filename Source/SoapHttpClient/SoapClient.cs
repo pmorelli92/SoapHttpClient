@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Microsoft.Extensions.Http;
+using Microsoft.Extensions.DependencyInjection;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -13,32 +15,23 @@ using SoapHttpClient.DTO;
 
 namespace SoapHttpClient
 {
-    public class SoapClient : ISoapClient, IDisposable
+    public class SoapClient : ISoapClient
     {
-        private readonly HttpClient _httpClient;
+        private readonly IHttpClientFactory _httpClientFactory;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SoapClient" /> class.
         /// </summary>
-        /// <param name="httpClientFactory">Allows the user to define the construction of the HttpClient</param>
-        public SoapClient(Func<HttpClient> httpClientFactory)
-            => _httpClient = httpClientFactory();
-        
-        /// <summary>
-        /// Initializes a new instance of the <see cref="SoapClient" /> class.
-        /// The internal HttpClient supports AutomaticDecompression of GZip and Deflate
-        /// </summary>
+        /// <param name="IHttpClientFactory">Microsoft.Extensions.Http HttpClientFactory</param>
+        public SoapClient(IHttpClientFactory httpClientFactory)
+            => _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
+
         public SoapClient()
-            : this(DefaultHttpFactory)
-        {
-        }
-
-        public void Dispose()
-            => _httpClient.Dispose();
+            => _httpClientFactory = DefaultHttpClientFactory();
 
         /// <inheritdoc />
         public Task<HttpResponseMessage> PostAsync(
-            Uri endpoint, 
+            Uri endpoint,
             SoapVersion soapVersion,
             IEnumerable<XElement> bodies,
             IEnumerable<XElement> headers = null,
@@ -79,16 +72,17 @@ namespace SoapHttpClient
                     content.Headers.ContentType.Parameters.Add(
                         new NameValueHeaderValue("ActionParameter", $"\"{action}\""));
             }
-            
+
             // Execute call
-            return _httpClient.PostAsync(endpoint, content, cancellationToken);
+            var httpClient = _httpClientFactory.CreateClient(nameof(SoapClient));
+            return httpClient.PostAsync(endpoint, content, cancellationToken);
         }
 
         #region Private Methods
 
         private static XElement GetEnvelope(SoapMessageConfiguration soapMessageConfiguration)
         {
-            return new 
+            return new
                 XElement(
                     soapMessageConfiguration.Schema + "Envelope",
                     new XAttribute(
@@ -96,10 +90,19 @@ namespace SoapHttpClient
                         soapMessageConfiguration.Schema.NamespaceName));
         }
 
-        private static HttpClient DefaultHttpFactory()
-            => new HttpClient(new HttpClientHandler {
-                AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate,
-            }, disposeHandler: false);
+        private static IHttpClientFactory DefaultHttpClientFactory()
+        {
+            var serviceProvider = new ServiceCollection();
+
+            serviceProvider
+                .AddHttpClient(nameof(SoapClient))
+                .ConfigurePrimaryHttpMessageHandler(e =>
+                    new HttpClientHandler {
+                        AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip
+                });
+
+            return serviceProvider.BuildServiceProvider().GetService<IHttpClientFactory>();
+        }
 
         #endregion Private Methods
     }
