@@ -1,10 +1,11 @@
 # SoapHttpClient  [![NuGet](https://img.shields.io/nuget/v/SoapHttpClient.svg)](https://www.nuget.org/packages/SoapHttpClient)
 
-> A lightweight wrapper of an `HttpClient` for POSTing messages that allows the
-> user to send the SOAP Body and Header (if needed) without caring about the
-> envelope.
+> A lightweight wrapper of an `HttpClient` (using `IHttpClientFactory`) for POSTing messages that allows the user to send the SOAP Body and Header (if needed) without caring about the envelope.
 
 ## Changelog
+
+### 3.0.0
+- Replaced HttpClient with HttpClientFactory.
 
 ### 2.2.1
 - Added support for Cancellation Tokens.
@@ -33,16 +34,14 @@
 SoapClient()
 ```
 
-Initializes `SoapClient` with a default `HttpClientFactory` that implements automatic decompression.
+Initializes `SoapClient` with a default `IHttpClientFactory` that implements automatic decompression.
 
 ```csharp
-SoapClient(Func<HttpClient> httpClientFactory)
+SoapClient(IHttpClientFactory httpClientFactory)
 ```
 
-Initializes `SoapClient` with a `HttpClientFactory` provided by the caller.
-The `HttpClientFactory` is simply a `Func<HttpClient>` that returns the HttpClient.
-
-This is in order for the consumer to manage all aspects of the HTTP Request using a `HttpMessageHandler` 
+Initializes `SoapClient` with a `IHttpClientFactory` provided by the caller.
+The `IHttpClientFactory` is the new interface used to manage HttpClient introduced on .NET Core 2.1.
 
 ------------------
 
@@ -54,10 +53,10 @@ The interface makes the client implement the following method:
 
 ```csharp
 Task<HttpResponseMessage> PostAsync(
-	Uri endpoint, 
-	SoapVersion soapVersion, 
-	IEnumerable<XElement> bodies, 
-	IEnumerable<XElement> headers = null, 
+	Uri endpoint,
+	SoapVersion soapVersion,
+	IEnumerable<XElement> bodies,
+	IEnumerable<XElement> headers = null,
 	string action = null,
 	CancellationToken cancellationToken = CancellationToken.Default);
 ```
@@ -81,7 +80,7 @@ Task<HttpResponseMessage> PostAsync(
 	XElement header = null,
 	string action = null,
 	CancellationToken cancellationToken = CancellationToken.Default);
-			
+
 Task<HttpResponseMessage> PostAsync(
 	this ISoapClient client,
 	Uri endpoint,
@@ -90,7 +89,7 @@ Task<HttpResponseMessage> PostAsync(
 	XElement header,
 	string action = null,
 	CancellationToken cancellationToken = CancellationToken.Default);
-			
+
 Task<HttpResponseMessage> PostAsync(
 	this ISoapClient client,
 	Uri endpoint,
@@ -158,7 +157,7 @@ async Task CallNasaAsync()
     var soapClient = new SoapClient();
     var ns = XNamespace.Get("http://helio.spdf.gsfc.nasa.gov/");
 
-    var result = 
+    var result =
         await soapClient.PostAsync(
             new Uri("http://sscweb.gsfc.nasa.gov:80/WS/helio/1/HeliocentricTrajectoriesService"),
             SoapVersion.Soap11,

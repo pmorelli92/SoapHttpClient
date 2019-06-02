@@ -105,10 +105,9 @@ namespace SoapHttpClient.Tests
             List<XElement> headers)
         {
             // Setup
-            // -- We use TestMessageHandler in order to check what call does the inner HttpClient made
-            var testMessageHandler = new TestMessageHandler();
-            var httpClient = new HttpClient(testMessageHandler);
-            var sut = new SoapClient(() => httpClient);
+            // -- We use TestHttpClientFactory so we can use our TestMessageHandler
+            var testFactory = new TestHttpClientFactory();
+            var sut = new SoapClient(testFactory);
 
             // Exercise
             var actual = await sut.PostAsync(endpoint, soapVersion, bodies, headers, action);
@@ -116,7 +115,7 @@ namespace SoapHttpClient.Tests
             // Verify outcome
             // -- Assert that we only made one call
             actual.StatusCode.Should().Be(HttpStatusCode.OK);
-            var actualCall = testMessageHandler.CallStack.Should().ContainSingle().Subject;
+            var actualCall = testFactory.Handler.CallStack.Should().ContainSingle().Subject;
             // -- Assert the endpoint
             actualCall.Uri.Should().Be(endpoint);
             // -- Assert the headers
@@ -142,15 +141,14 @@ namespace SoapHttpClient.Tests
             // -- We use TestMessageHandler in order to check what call does the inner HttpClient made
             var tokenSource = new CancellationTokenSource();
             var token = tokenSource.Token;
-            var testMessageHandler = new TestMessageHandler();
-            var httpClient = new HttpClient(testMessageHandler);
-            var sut = new SoapClient(() => httpClient);
+            var testFactory = new TestHttpClientFactory();
+            var sut = new SoapClient(testFactory);
 
             // Exercise
             var task = sut.PostAsync(endpoint, soapVersion, bodies, headers, action, token);
 
             // Verify outcome
-            // -- Assert that cancellation has been requested. 
+            // -- Assert that cancellation has been requested.
             tokenSource.Cancel(true);
             Task.WaitAll(task);
             Assert.True(token.IsCancellationRequested);
@@ -191,9 +189,9 @@ namespace SoapHttpClient.Tests
             // Assert Envelope
             actualEnvelope.Name.LocalName.Should().Be("Envelope");
             actualEnvelope.Name.Namespace.NamespaceName.Should().Be(expectedNameSpace);
-            
+
             // Assert Headers
-            
+
             if (headers != null && headers.Any())
             {
                 var actualHeader =

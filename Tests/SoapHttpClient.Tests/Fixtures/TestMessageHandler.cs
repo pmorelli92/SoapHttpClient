@@ -6,6 +6,21 @@ using System.Threading.Tasks;
 
 namespace SoapHttpClient.Tests.Fixtures
 {
+    public class TestHttpClientFactory : IHttpClientFactory
+    {
+        public TestMessageHandler Handler { get; }
+
+        public TestHttpClientFactory()
+        {
+            Handler = new TestMessageHandler();
+        }
+
+        public HttpClient CreateClient(string name)
+        {
+            return new HttpClient(Handler);
+        }
+    }
+
     public class TestMessageHandler : HttpMessageHandler
     {
         public List<TestCall> CallStack { get; set; }
@@ -20,7 +35,7 @@ namespace SoapHttpClient.Tests.Fixtures
             CallStack.Add(
                 new TestCall(
                     request.RequestUri,
-                    await request.Content.ReadAsStringAsync(), 
+                    await request.Content.ReadAsStringAsync(),
                     request.Content.Headers));
 
             return new HttpResponseMessage(HttpStatusCode.OK);
