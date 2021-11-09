@@ -69,7 +69,7 @@ Allowing us to send the following calls:
 
 ------------------
 
-Then there are sugar sintax extension methods:
+Then there are syntactic sugar extension methods:
 
 ```csharp
 Task<HttpResponseMessage> PostAsync(
