@@ -1,8 +1,4 @@
 ﻿using SoapHttpClient.Enums;
-using System;
-using System.Collections.Generic;
-using System.Net.Http;
-using System.Threading.Tasks;
 using System.Xml.Linq;
 
 namespace SoapHttpClient
@@ -23,8 +19,8 @@ namespace SoapHttpClient
             Uri endpoint,
             SoapVersion soapVersion,
             XElement body,
-            XElement header = null,
-            string action = null)
+            XElement? header = null,
+            string? action = null)
                 => ResolveTask(() =>
                     client.PostAsync(endpoint, soapVersion, body, header, action));
 
@@ -43,7 +39,7 @@ namespace SoapHttpClient
             SoapVersion soapVersion,
             IEnumerable<XElement> bodies,
             XElement header,
-            string action = null)
+            string? action = null)
                 => ResolveTask(() =>
                     client.PostAsync(endpoint, soapVersion, bodies, header, action));
 
@@ -62,7 +58,7 @@ namespace SoapHttpClient
             SoapVersion soapVersion,
             XElement body,
             IEnumerable<XElement> headers,
-            string action = null)
+            string? action = null)
                 => ResolveTask(() =>
                     client.PostAsync(endpoint, soapVersion, body, headers, action));
 
@@ -70,7 +66,7 @@ namespace SoapHttpClient
 
         private static HttpResponseMessage ResolveTask(Func<Task<HttpResponseMessage>> fn)
             => Task.Run(fn).Result;
-        
+
         #endregion Private Methods
     }
 }

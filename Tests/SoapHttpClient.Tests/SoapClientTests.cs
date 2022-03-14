@@ -1,230 +1,139 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Threading;
-using System.Threading.Tasks;
+﻿using System.Net;
 using System.Xml.Linq;
-using AutoFixture;
-using AutoFixture.Kernel;
-using FluentAssertions;
+using SoapHttpClient.DTO;
 using SoapHttpClient.Enums;
-using SoapHttpClient.Tests.Fixtures;
-using SoapHttpClient.Tests.Fixtures.Attributes;
 using Xunit;
 
-namespace SoapHttpClient.Tests
+namespace SoapHttpClient.Tests;
+
+public class SoapClientTests
 {
-    public class SoapClientTests
+    [Fact(DisplayName = "SoapClient should be assignable to the interface")]
+    public void Sut_ShouldBeAssignableTo_ISoapClient()
     {
-        #region Customizations
+        // Verify outcome
+        Assert.IsAssignableFrom<ISoapClient>(new SoapClient());
+    }
 
-        public class ActionIsNullCustomization : ICustomization
+    public static IEnumerable<object?[]> PostAsyncTestsData =>
+        new List<object?[]>
         {
-            public void Customize(IFixture fixture)
+            // Action is null
+            new object?[] {
+                new Uri("https://test.com"),
+                SoapVersion.Soap11,
+                new[] { new XElement("body1"), new XElement("body2") },
+                new[] { new XElement("header1") },
+                null
+            },
+
+            // Soap 12
+            new object?[] {
+                new Uri("https://test.com"),
+                SoapVersion.Soap12,
+                new[] { new XElement("body1") },
+                new[] { new XElement("header1"), new XElement("header2") },
+                "action"
+            },
+
+            // Headers are null
+            new object?[] {
+                new Uri("https://test.com"),
+                SoapVersion.Soap12,
+                new[] { new XElement("body1") },
+                null,
+                "action"
+            },
+
+            // Headers are empty
+            new object?[] {
+                new Uri("https://test.com"),
+                SoapVersion.Soap12,
+                new[] { new XElement("body1") },
+                new XElement[] {},
+                "action"
+            },
+
+            // One header and one body
+            new object?[] {
+                new Uri("https://test.com"),
+                SoapVersion.Soap11,
+                new[] { new XElement("body1") },
+                new[] { new XElement("header1") },
+                "action"
+            },
+        };
+
+    [Theory]
+    [MemberData(nameof(PostAsyncTestsData))]
+    public async void PostAsyncTests(
+        Uri endpoint,
+        SoapVersion version,
+        IEnumerable<XElement> bodies,
+        IEnumerable<XElement> headers,
+        string action)
+    {
+        // Setup
+        var testFactory = new TestHttpClientFactory();
+        var sut = new SoapClient(testFactory);
+
+        // Exercise
+        var result = await sut.PostAsync(endpoint, version, bodies, headers, action);
+
+        // Verify outcome
+        var actual = testFactory.Handler.CallStack.Single();
+
+        Assert.Equal(HttpStatusCode.OK, result.StatusCode);
+        Assert.Equal(endpoint, actual.Uri);
+
+        // Assert action and version
+        var actualHeaders = actual.Headers;
+        if (actualHeaders.Contains("ActionHeader"))
+        {
+            var actualVersion = SoapVersion.Soap11;
+            Assert.Equal(version, actualVersion);
+            Assert.Equal(action, actualHeaders.GetValues("ActionHeader").Single());
+        }
+        else
+        {
+            var actionParam = actualHeaders.ContentType?.Parameters?.SingleOrDefault(e => e.Name == "ActionParameter");
+            if (actionParam != null)
             {
-                fixture.Customizations.Add(
-                    new FilteringSpecimenBuilder(
-                        new FixedBuilder(default(string)),
-                        new ParameterSpecification(typeof(string), "action")));
+                var actualVersion = SoapVersion.Soap12;
+                Assert.Equal(version, actualVersion);
+                Assert.Equal($"\"{action}\"", actionParam.Value);
             }
         }
 
-        public class SoapVersion12Customization : ICustomization
+        // Assert namespace
+        var actualEnvelope = XElement.Parse(actual.Body);
+        var expectedNamespace = new SoapMessageConfiguration(version).Schema;
+        Assert.Equal("Envelope", actualEnvelope.Name.LocalName);
+        Assert.Equal(expectedNamespace, actualEnvelope.Name.Namespace.NamespaceName);
+
+        // Assert Headers
+        if (headers != null && headers.Any())
         {
-            public void Customize(IFixture fixture)
-            {
-                fixture.Customizations.Add(
-                    new FilteringSpecimenBuilder(
-                        new FixedBuilder(SoapVersion.Soap12),
-                        new ParameterSpecification(typeof(SoapVersion), "soapVersion")));
-            }
-        }
-
-        public class HeadersAreNullCustomization : ICustomization
-        {
-            public void Customize(IFixture fixture)
-            {
-                fixture.Customizations.Add(
-                    new FilteringSpecimenBuilder(
-                        new FixedBuilder(default(IEnumerable<XElement>)),
-                        new ParameterSpecification(typeof(IEnumerable<XElement>), "headers")));
-            }
-        }
-
-        public class HeadersAreEmptyCustomization : ICustomization
-        {
-            public void Customize(IFixture fixture)
-            {
-                fixture.Customizations.Add(
-                    new FilteringSpecimenBuilder(
-                        new FixedBuilder(Enumerable.Empty<XElement>()),
-                        new ParameterSpecification(typeof(IEnumerable<XElement>), "headers")));
-            }
-        }
-
-        public class OnlyOneHeaderAndOneBodyCustomization : ICustomization
-        {
-            public void Customize(IFixture fixture)
-            {
-                fixture.Customizations.Add(
-                    new FilteringSpecimenBuilder(
-                        new FixedBuilder(new[] { fixture.Create<XElement>() }),
-                        new ParameterSpecification(typeof(IEnumerable<XElement>), "headers")));
-
-                fixture.Customizations.Add(
-                    new FilteringSpecimenBuilder(
-                        new FixedBuilder(new[] { fixture.Create<XElement>() }),
-                        new ParameterSpecification(typeof(IEnumerable<XElement>), "bodies")));
-            }
-        }
-
-        #endregion Customizations
-
-        [Theory(DisplayName = "SoapClient should be assignable to the interface")]
-        [DefaultData]
-        public void Sut_ShouldBeAssignableTo_ISoapClient(SoapClient sut)
-        {
-            // Verify outcome
-            sut.Should().BeAssignableTo<ISoapClient>();
-        }
-
-        [Theory(DisplayName = "Post should do expected HTTP call")]
-        [InlineDefaultData(typeof(ActionIsNullCustomization))]
-        [InlineDefaultData(typeof(SoapVersion12Customization))]
-        [InlineDefaultData(typeof(HeadersAreNullCustomization))]
-        [InlineDefaultData(typeof(HeadersAreEmptyCustomization))]
-        [InlineDefaultData(typeof(OnlyOneHeaderAndOneBodyCustomization))]
-        public async void PostAsync_ShouldDoExpectedHttpCall(
-            Uri endpoint,
-            string action,
-            SoapVersion soapVersion,
-            List<XElement> bodies,
-            List<XElement> headers)
-        {
-            // Setup
-            // -- We use TestHttpClientFactory so we can use our TestMessageHandler
-            var testFactory = new TestHttpClientFactory();
-            var sut = new SoapClient(testFactory);
-
-            // Exercise
-            var actual = await sut.PostAsync(endpoint, soapVersion, bodies, headers, action);
-
-            // Verify outcome
-            // -- Assert that we only made one call
-            actual.StatusCode.Should().Be(HttpStatusCode.OK);
-            var actualCall = testFactory.Handler.CallStack.Should().ContainSingle().Subject;
-            // -- Assert the endpoint
-            actualCall.Uri.Should().Be(endpoint);
-            // -- Assert the headers
-            AssertActualHeaders(actualCall.Headers, soapVersion, action);
-            // -- Assert the request body
-            AssertRequestBody(soapVersion, actualCall.Body, bodies, headers);
-        }
-
-        [Theory(DisplayName = "Post should cancel HTTP call")]
-        [InlineDefaultData(typeof(ActionIsNullCustomization))]
-        [InlineDefaultData(typeof(SoapVersion12Customization))]
-        [InlineDefaultData(typeof(HeadersAreNullCustomization))]
-        [InlineDefaultData(typeof(HeadersAreEmptyCustomization))]
-        [InlineDefaultData(typeof(OnlyOneHeaderAndOneBodyCustomization))]
-        public void PostAsync_ShouldCancelExpectedHttpCall(
-            Uri endpoint,
-            string action,
-            SoapVersion soapVersion,
-            List<XElement> bodies,
-            List<XElement> headers)
-        {
-            // Setup
-            // -- We use TestMessageHandler in order to check what call does the inner HttpClient made
-            var tokenSource = new CancellationTokenSource();
-            var token = tokenSource.Token;
-            var testFactory = new TestHttpClientFactory();
-            var sut = new SoapClient(testFactory);
-
-            // Exercise
-            var task = sut.PostAsync(endpoint, soapVersion, bodies, headers, action, token);
-
-            // Verify outcome
-            // -- Assert that cancellation has been requested.
-            tokenSource.Cancel(true);
-            Task.WaitAll(task);
-            Assert.True(token.IsCancellationRequested);
-            Console.WriteLine(task.Result);
-        }
-
-        #region Private Methods
-
-        private static void AssertActualHeaders(HttpContentHeaders headers, SoapVersion soapVersion, string action)
-        {
-            if (headers.Contains("ActionHeader"))
-            {
-                soapVersion.Should().Be(SoapVersion.Soap11);
-                headers.GetValues("ActionHeader").Single().Should().Be(action);
-            }
-            else if (headers.ContentType.Parameters.Any(e => e.Name == "ActionParameter"))
-            {
-                var actionParam = headers.ContentType.Parameters.Single(e => e.Name == "ActionParameter");
-                actionParam.Value.Should().Be($"\"{action}\"");
-                soapVersion.Should().Be(SoapVersion.Soap12);
-            }
-        }
-
-        private static void AssertRequestBody(
-            SoapVersion soapVersion,
-            string body,
-            IEnumerable<XElement> bodies,
-            IReadOnlyCollection<XElement> headers)
-        {
-            // Get Namespaces
-            var expectedNameSpace =
-                (soapVersion == SoapVersion.Soap11)
-                    ? "http://schemas.xmlsoap.org/soap/envelope/"
-                    : "http://www.w3.org/2003/05/soap-envelope";
-
-            var actualEnvelope = XElement.Parse(body);
-
-            // Assert Envelope
-            actualEnvelope.Name.LocalName.Should().Be("Envelope");
-            actualEnvelope.Name.Namespace.NamespaceName.Should().Be(expectedNameSpace);
-
-            // Assert Headers
-
-            if (headers != null && headers.Any())
-            {
-                var actualHeader =
-                    actualEnvelope.Elements()
-                    .Where(e => e.Name.LocalName == "Header")
-                    .Where(e => e.Name.Namespace.NamespaceName == expectedNameSpace)
-                    .Should()
-                    .ContainSingle()
-                    .Subject;
-
-                // Since FluentAssertions Should().Be(...) compares by instance and we dont have the same instance
-                // And Should().BeEquivalentTo(...) compares by object graph and generates a memory degration
-                // we will compare the elements using the .ToString() serialization of the XML
-                actualHeader.Elements().Select(e => e.ToString())
-                    .Should().BeEquivalentTo(headers.Select(e => e.ToString()));
-            }
-
-            // Assert Bodies
-            var actualBody =
+            var actualHeader =
                 actualEnvelope.Elements()
-                .Where(e => e.Name.LocalName == "Body")
-                .Where(e => e.Name.Namespace.NamespaceName == expectedNameSpace)
-                .Should()
-                .ContainSingle()
-                .Subject;
+                .Where(e => e.Name.LocalName == "Header")
+                .Where(e => e.Name.Namespace.NamespaceName == expectedNamespace)
+                .Single();
 
-            // Since FluentAssertions Should().Be(...) compares by instance and we dont have the same instance
-            // And Should().BeEquivalentTo(...) compares by object graph and generates a memory degration
-            // we will compare the elements using the .ToString() serialization of the XML
-            actualBody.Elements().Select(e => e.ToString())
-                .Should().BeEquivalentTo(bodies.Select(e => e.ToString()));
+            Assert.Equal(
+                headers.Select(e => e.ToString()),
+                actualHeader.Elements().Select(e => e.ToString()));
         }
 
-        #endregion Private Methods
+        // Assert Bodies
+        var actualBody =
+            actualEnvelope.Elements()
+            .Where(e => e.Name.LocalName == "Body")
+            .Where(e => e.Name.Namespace.NamespaceName == expectedNamespace)
+            .Single();
+
+        Assert.Equal(
+            bodies.Select(e => e.ToString()),
+            actualBody.Elements().Select(e => e.ToString()));
     }
 }

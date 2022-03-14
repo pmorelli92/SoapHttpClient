@@ -1,9 +1,4 @@
 ﻿using SoapHttpClient.Enums;
-using System;
-using System.Collections.Generic;
-using System.Net.Http;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Xml.Linq;
 
 namespace SoapHttpClient
@@ -24,8 +19,8 @@ namespace SoapHttpClient
             Uri endpoint,
             SoapVersion soapVersion,
             XElement body,
-            XElement header = null,
-            string action = null,
+            XElement? header = null,
+            string? action = null,
             CancellationToken cancellationToken = default(CancellationToken))
         {
             return client.PostAsync(
@@ -52,14 +47,14 @@ namespace SoapHttpClient
             SoapVersion soapVersion,
             IEnumerable<XElement> bodies,
             XElement header,
-            string action = null,
+            string? action = null,
             CancellationToken cancellationToken = default(CancellationToken))
         {
             return client.PostAsync(
                 endpoint,
                 soapVersion,
                 bodies,
-                header != null ? new[] { header } : default(IEnumerable<XElement>),
+                new[] { header },
                 action,
                 cancellationToken);
         }
@@ -79,7 +74,7 @@ namespace SoapHttpClient
             SoapVersion soapVersion,
             XElement body,
             IEnumerable<XElement> headers,
-            string action = null,
+            string? action = null,
             CancellationToken cancellationToken = default(CancellationToken))
         {
             return client.PostAsync(

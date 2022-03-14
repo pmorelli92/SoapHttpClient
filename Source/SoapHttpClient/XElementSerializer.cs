@@ -15,7 +15,7 @@ namespace SoapHttpClient
             using (var xw = xDoc.CreateWriter())
                 xs.Serialize(xw, obj);
 
-            return xDoc.Root;
+            return xDoc.Root!;
         }
     }
 }

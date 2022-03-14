@@ -1,10 +1,4 @@
 ﻿using SoapHttpClient.Enums;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Xml.Linq;
 
 namespace SoapHttpClient
@@ -25,9 +19,9 @@ namespace SoapHttpClient
             Uri endpoint,
             SoapVersion soapVersion,
             object body,
-            object header = null,
-            IXElementSerializer xElementSerializer = null,
-            string action = null,
+            object? header = null,
+            IXElementSerializer? xElementSerializer = null,
+            string? action = null,
             CancellationToken cancellationToken = default(CancellationToken))
         {
             if (xElementSerializer == null)
@@ -36,7 +30,7 @@ namespace SoapHttpClient
             return client.PostAsync(endpoint,
                 soapVersion,
                 xElementSerializer.Serialize(body),
-                header != null ? new[] { xElementSerializer.Serialize(header) } : default(IEnumerable<XElement>),
+                header != null ? new[] { xElementSerializer.Serialize(header) } : Enumerable.Empty<XElement>(),
                 action,
                 cancellationToken);
         }
@@ -56,8 +50,8 @@ namespace SoapHttpClient
             SoapVersion soapVersion,
             IEnumerable<object> bodies,
             object header,
-            IXElementSerializer xElementSerializer = null,
-            string action = null,
+            IXElementSerializer? xElementSerializer = null,
+            string? action = null,
             CancellationToken cancellationToken = default(CancellationToken))
         {
             if (xElementSerializer == null)
@@ -66,7 +60,7 @@ namespace SoapHttpClient
             return client.PostAsync(endpoint,
                 soapVersion,
                 bodies.Select(e => xElementSerializer.Serialize(e)),
-                header != null ? xElementSerializer.Serialize(header) : default(XElement),
+                header != null ? new[] { xElementSerializer.Serialize(header) } : Enumerable.Empty<XElement>(),
                 action,
                 cancellationToken);
         }
@@ -86,8 +80,8 @@ namespace SoapHttpClient
             SoapVersion soapVersion,
             object body,
             IEnumerable<object> headers,
-            IXElementSerializer xElementSerializer = null,
-            string action = null,
+            IXElementSerializer? xElementSerializer = null,
+            string? action = null,
             CancellationToken cancellationToken = default(CancellationToken))
         {
             if (xElementSerializer == null)

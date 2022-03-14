@@ -1,14 +1,7 @@
-﻿using Microsoft.Extensions.Http;
-using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using Microsoft.Extensions.DependencyInjection;
 using System.Net;
-using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Xml.Linq;
 using SoapHttpClient.Enums;
 using SoapHttpClient.DTO;
@@ -34,8 +27,8 @@ namespace SoapHttpClient
             Uri endpoint,
             SoapVersion soapVersion,
             IEnumerable<XElement> bodies,
-            IEnumerable<XElement> headers = null,
-            string action = null,
+            IEnumerable<XElement>? headers = null,
+            string? action = null,
             CancellationToken cancellationToken = default(CancellationToken))
         {
             if (endpoint == null)
@@ -69,7 +62,7 @@ namespace SoapHttpClient
                 content.Headers.Add("SOAPAction", action);
 
                 if (messageConfiguration.SoapVersion == SoapVersion.Soap12)
-                    content.Headers.ContentType.Parameters.Add(
+                    content.Headers.ContentType!.Parameters.Add(
                         new NameValueHeaderValue("ActionParameter", $"\"{action}\""));
             }
 
@@ -97,11 +90,12 @@ namespace SoapHttpClient
             serviceProvider
                 .AddHttpClient(nameof(SoapClient))
                 .ConfigurePrimaryHttpMessageHandler(e =>
-                    new HttpClientHandler {
+                    new HttpClientHandler
+                    {
                         AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip
-                });
+                    });
 
-            return serviceProvider.BuildServiceProvider().GetService<IHttpClientFactory>();
+            return serviceProvider.BuildServiceProvider().GetService<IHttpClientFactory>()!;
         }
 
         #endregion Private Methods

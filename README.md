@@ -57,7 +57,7 @@ Task<HttpResponseMessage> PostAsync(
 	SoapVersion soapVersion,
 	IEnumerable<XElement> bodies,
 	IEnumerable<XElement> headers = null,
-	string action = null,
+	string? action = null,
 	CancellationToken cancellationToken = CancellationToken.Default);
 ```
 
@@ -78,7 +78,7 @@ Task<HttpResponseMessage> PostAsync(
 	SoapVersion soapVersion,
 	XElement body,
 	XElement header = null,
-	string action = null,
+	string? action = null,
 	CancellationToken cancellationToken = CancellationToken.Default);
 
 Task<HttpResponseMessage> PostAsync(
@@ -87,7 +87,7 @@ Task<HttpResponseMessage> PostAsync(
 	SoapVersion soapVersion,
 	IEnumerable<XElement> bodies,
 	XElement header,
-	string action = null,
+	string? action = null,
 	CancellationToken cancellationToken = CancellationToken.Default);
 
 Task<HttpResponseMessage> PostAsync(
@@ -96,7 +96,7 @@ Task<HttpResponseMessage> PostAsync(
 	SoapVersion soapVersion,
 	XElement body,
 	IEnumerable<XElement> headers,
-	string action = null,
+	string? action = null,
 	CancellationToken cancellationToken = CancellationToken.Default);
 ```
 
